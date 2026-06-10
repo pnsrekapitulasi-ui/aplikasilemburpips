@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <head>
-    <meta property="og:title" content="Aplikasi Lembur PLN UBP Pangkalan Susu">
-    <meta property="og:description" content="Sistem manajemen pengajuan dan rekapitulasi lembur internal pegawai PT PLN Indonesia Power Services.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/pnsrekapitulasi-ui/aplikasilemburpips/refs/heads/main/preview-lembur.png">
-    <meta property="og:url" content="https://pnsrekapitulasi-ui.github.io/aplikasilemburpips/">
-    <meta property="og:type" content="website">
-    </head>
+  <meta property="og:title" content="Aplikasi Lembur PLN UBP Pangkalan Susu">
+  <meta property="og:description" content="Sistem manajemen pengajuan dan rekapitulasi lembur internal pegawai PT PLN Indonesia Power Services.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/pnsrekapitulasi-ui/aplikasilemburpips/refs/heads/main/preview-lembur.png">
+  <meta property="og:url" content="https://pnsrekapitulasi-ui.github.io/aplikasilemburpips/">
+  <meta property="og:type" content="website">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google" content="notranslate">
@@ -659,7 +657,28 @@ input:focus + .input-icon {
         <div class="login-right">
           <h2>Reset Password</h2>
           <p id="resetInstruction">Masukkan Username Anda untuk meminta kode konfirmasi.</p>
-          <div id="stepMintaToken" style="width: 100%;"><div class="input-group"><i class="fas fa-user input-icon"></i><input type="text" id="resetUsername" placeholder="Masukkan Username Anda"></div><button id="btnMintaTokenAction" onclick="mintaKodeToken()">Kirim Kode Konfirmasi</button></div>
+          <div id="stepMintaToken" style="width: 100%;">
+  <div class="input-group">
+    <i class="fas fa-user input-icon"></i>
+    <input type="text" id="resetUsername" placeholder="Masukkan Username Anda">
+  </div>
+  
+  <div style="margin-bottom: 20px; text-align: left; padding-left: 5px;">
+    <p style="font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 8px; letter-spacing: 0.5px;">KIRIM TOKEN MELALUI:</p>
+    <div style="display: flex; gap: 20px;">
+      <label style="font-size: 13px; font-weight: 600; color: #1e293b; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <input type="radio" name="metodeKirim" value="email" checked style="width: 16px; height: 16px; margin: 0; padding: 0; box-shadow: none;"> 
+        <i class="fas fa-envelope" style="color: #2563eb;"></i> Email
+      </label>
+      <label style="font-size: 13px; font-weight: 600; color: #1e293b; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <input type="radio" name="metodeKirim" value="wa" style="width: 16px; height: 16px; margin: 0; padding: 0; box-shadow: none;"> 
+        <i class="fab fa-whatsapp" style="color: #10b981; font-size: 15px;"></i> WhatsApp
+      </label>
+    </div>
+  </div>
+
+  <button id="btnMintaTokenAction" onclick="mintaKodeToken()">Kirim Kode Konfirmasi</button>
+</div>
           <div id="stepVerifikasiToken" style="display: none; width: 100%;"><div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 15px; text-align: left;">✓ Kode konfirmasi telah dikirim ke email terdaftar Anda.</div><div class="input-group"><i class="fas fa-key input-icon"></i><input type="text" id="resetToken" placeholder="Masukkan 6 Digit Kode Token" maxlength="6" style="text-align: center; font-weight: bold;"></div><div class="input-group"><i class="fas fa-lock input-icon"></i><input type="password" id="resetNewPassword" placeholder="Password Baru"></div><button id="btnResetAction" onclick="prosesResetPassword()">Update Password</button></div>
           <div style="display: flex; justify-content: center; width: 100%; margin-top: 15px;"><a href="#" onclick="kembaliKeLogin(event)" class="forgot-password-link" style="font-size: 13px;">← Kembali ke Login</a></div>
         </div>
@@ -1303,7 +1322,43 @@ input:focus + .input-icon {
   function handleLupaPassword(event) { if (event) event.preventDefault(); document.getElementById("loginPage").style.display = "none"; document.getElementById("resetPage").style.display = "block"; }
   function kembaliKeLogin(event) { if (event) event.preventDefault(); document.getElementById("resetPage").style.display = "none"; document.getElementById("loginPage").style.display = "none"; eksekusiTampilanGagalLogin(); document.getElementById("stepMintaToken").style.display = "block"; document.getElementById("stepVerifikasiToken").style.display = "none"; }
   
-  async function mintaKodeToken() { const username = document.getElementById("resetUsername").value.trim(); if (!username) { alert("Harap masukkan Username Anda!"); return; } const btn = document.getElementById("btnMintaTokenAction"); btn.disabled = true; btn.textContent = "Memproses..."; try { const response = await fetch(`${SCRIPT_URL}?action=kirimToken&username=${encodeURIComponent(username)}`); if (!response.ok) throw new Error("Gagal terhubung"); const respon = await response.json(); btn.disabled = false; btn.textContent = "Kirim Kode Konfirmasi"; if (respon.sukses) { document.getElementById("stepMintaToken").style.display = "none"; document.getElementById("stepVerifikasiToken").style.display = "block"; } else { alert("Gagal: " + respon.pesan); } } catch (error) { btn.disabled = false; btn.textContent = "Kirim Kode Konfirmasi"; alert("Error: " + error.message); } }
+  async function mintaKodeToken() { 
+  const username = document.getElementById("resetUsername").value.trim(); 
+  if (!username) { alert("Harap masukkan Username Anda!"); return; } 
+  
+  // Menangkap pilihan dari radio button (email atau wa)
+  const metodeDipilih = document.querySelector('input[name="metodeKirim"]:checked').value;
+
+  const btn = document.getElementById("btnMintaTokenAction"); 
+  btn.disabled = true; 
+  btn.textContent = "Memproses..."; 
+  
+  try { 
+    // Menyisipkan parameter metode ke URL Fetch
+    const response = await fetch(`${SCRIPT_URL}?action=kirimToken&username=${encodeURIComponent(username)}&metode=${encodeURIComponent(metodeDipilih)}`); 
+    if (!response.ok) throw new Error("Gagal terhubung"); 
+    
+    const respon = await response.json(); 
+    btn.disabled = false; 
+    btn.textContent = "Kirim Kode Konfirmasi"; 
+    
+    if (respon.sukses) { 
+      document.getElementById("stepMintaToken").style.display = "none"; 
+      document.getElementById("stepVerifikasiToken").style.display = "block"; 
+      
+      // Mengubah teks notifikasi sukses hijau agar dinamis sesuai balasan server
+      const notifSukses = document.querySelector("#stepVerifikasiToken > div:first-child");
+      if(notifSukses) notifSukses.innerHTML = "✓ " + respon.pesan;
+      
+    } else { 
+      alert("Gagal: " + respon.pesan); 
+    } 
+  } catch (error) { 
+    btn.disabled = false; 
+    btn.textContent = "Kirim Kode Konfirmasi"; 
+    alert("Error: " + error.message); 
+  } 
+}
   
   async function prosesResetPassword() { const username = document.getElementById("resetUsername").value.trim(); const token = document.getElementById("resetToken").value.trim(); const passwordBaru = document.getElementById("resetNewPassword").value.trim(); if (!token || !passwordBaru) { alert("Harap isi Kode Token dan Password Baru!"); return; } const btn = document.getElementById("btnResetAction"); btn.disabled = true; btn.textContent = "Updating..."; try { const response = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "prosesReset", username: username, token: token, passwordBaru: passwordBaru }) }); if (!response.ok) throw new Error("Gagal"); const respon = await response.json(); btn.disabled = false; btn.textContent = "Update Password"; alert(respon.pesan); if (respon.sukses) kembaliKeLogin(); } catch (error) { btn.disabled = false; btn.textContent = "Update Password"; alert("Error: " + error.message); } }
 
@@ -1318,7 +1373,14 @@ input:focus + .input-icon {
       if(!username || !password){ alert("Username dan password wajib diisi"); return; }
       btn.disabled = true; btn.innerText = "Memverifikasi...";
 
-      const response = await fetch(`${SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
+      const response = await fetch(SCRIPT_URL, {
+  method: "POST",
+  body: JSON.stringify({ 
+    action: "login", 
+    username: username, 
+    password: password 
+  })
+});
       if (!response.ok) throw new Error();
       const result = await response.json();
 
