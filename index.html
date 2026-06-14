@@ -1104,7 +1104,7 @@ input:focus + .input-icon {
     </div>
 </div>
 
-        <div id="editModeFields" style="display:none; text-align: left;">
+<div id="editModeFields" style="display:none; text-align: left;">
             <div class="form-group-premium">
                 <label>Tanggal</label>
                 <input type="date" id="editTanggal" class="premium-input" onchange="hitungLemburEdit()">
@@ -1141,6 +1141,14 @@ input:focus + .input-icon {
                         <option value="TIDAK">TIDAK</option>
                     </select>
                 </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- INI KOTAK DESKRIPSI YANG BARU DITAMBAHKAN -->
+            <!-- ========================================== -->
+            <div class="form-group-premium" style="margin-top: 10px;">
+                <label>Deskripsi Pekerjaan</label>
+                <textarea id="editDeskripsi" class="premium-input" style="height: 60px; resize: none;" maxlength="35" oninput="this.value = this.value.replace(/[^a-zA-Z0-9 ]/g, '');"></textarea>
             </div>
 
             <div style="background:#eff6ff; padding:15px; border-radius:10px; margin-top:5px; border:1px solid #bfdbfe;">
@@ -1834,7 +1842,8 @@ async function loadHistory() {
         if (isRejected) {
             // Munculkan tombol Revisi jika status Rejected
             document.getElementById("btnEdit").style.display = "block";
-            document.getElementById("btnEdit").innerText = "Revisi Pengajuan";
+            document.getElementById("btnEdit").innerHTML = '<i class="fas fa-edit"></i> Revisi';
+            document.getElementById("btnEdit").style.fontSize = "12px"; // Memperkecil font agar tombol tidak terlalu besar
             document.getElementById("btnEdit").style.background = "#2563eb"; // Warna biru PLN untuk Pegawai
         } else {
             // Sembunyikan tombol jika status Pending / Approved
@@ -2328,9 +2337,16 @@ function toggleEditMode(isEdit) {
         // --- Setting Nilai Form ---
         document.getElementById("editMasuk").value = barisTerpilih.jam_masuk;
         document.getElementById("editKeluar").value = barisTerpilih.jam_keluar;
-        document.getElementById("editKategori").value = barisTerpilih.kategori;
-        document.getElementById("editJenis").value = barisTerpilih.jenis || "ADMIN/HAR";
-        document.getElementById("editJadwal").value = barisTerpilih.jadwal || "TIDAK";
+        
+        // PERBAIKAN 1: Memaksa format teks agar dropdown Kategori selalu terpilih dengan benar
+        const kategoriAman = String(barisTerpilih.kategori || "").trim().toUpperCase();
+        document.getElementById("editKategori").value = kategoriAman === "HARI LIBUR" ? "HARI LIBUR" : "HARI BIASA";
+        
+        document.getElementById("editJenis").value = String(barisTerpilih.jenis || "ADMIN/HAR").trim().toUpperCase();
+        document.getElementById("editJadwal").value = String(barisTerpilih.jadwal || "TIDAK").trim().toUpperCase();
+        
+        // PERBAIKAN 2: Memunculkan teks pada kotak Deskripsi Pekerjaan
+        document.getElementById("editDeskripsi").value = String(barisTerpilih.deskripsi || "").trim() === "-" ? "" : barisTerpilih.deskripsi;
         
         // --- Kalkulasi Otomatis ---
         // Memanggil fungsi hitung agar angka langsung muncul saat edit dibuka
@@ -2356,7 +2372,10 @@ async function simpanPerubahan() {
             kategori: document.getElementById("editKategori").value,
             jenis: document.getElementById("editJenis").value,
             jadwal: document.getElementById("editJadwal").value,
-            deskripsi: barisTerpilih.deskripsi || "-", 
+            
+            // PERBAIKAN: Mengambil nilai terbaru dari kotak Deskripsi Pekerjaan di form edit
+            deskripsi: document.getElementById("editDeskripsi").value.trim() || "-", 
+            
             // Kirim angka kalkulasi yang baru ke server
             total_kerja: document.getElementById("calcTotalKerja").innerText.replace(" Jam", ""),
             total_efektif: document.getElementById("calcTotalEfektif").innerText.replace(" Jam", ""),
