@@ -2360,11 +2360,15 @@ async function simpanPerubahan() {
     btnSimpan.innerText = "Menyimpan...";
     btnSimpan.disabled = true;
 
-    // 1. Deteksi Role User yang sedang login
     const roleSaatIni = localStorage.getItem("role");
     const actionFix = roleSaatIni === "admin" ? "updateLembur" : "revisiLembur";
 
     try {
+        // Proteksi UI
+        if (!barisTerpilih || !barisTerpilih.row) {
+            throw new Error("Gagal mengidentifikasi baris. Silakan tutup detail dan buka kembali.");
+        }
+
         const data = {
             tanggal: document.getElementById("editTanggal").value,
             jam_masuk: document.getElementById("editMasuk").value,
@@ -2372,11 +2376,7 @@ async function simpanPerubahan() {
             kategori: document.getElementById("editKategori").value,
             jenis: document.getElementById("editJenis").value,
             jadwal: document.getElementById("editJadwal").value,
-            
-            // PERBAIKAN: Mengambil nilai terbaru dari kotak Deskripsi Pekerjaan di form edit
             deskripsi: document.getElementById("editDeskripsi").value.trim() || "-", 
-            
-            // Kirim angka kalkulasi yang baru ke server
             total_kerja: document.getElementById("calcTotalKerja").innerText.replace(" Jam", ""),
             total_efektif: document.getElementById("calcTotalEfektif").innerText.replace(" Jam", ""),
             istirahat: document.getElementById("calcIstirahat").innerText.replace(" Jam", ""),
@@ -2386,35 +2386,38 @@ async function simpanPerubahan() {
             x4: document.getElementById("calc40").innerText
         };
         
-        // 2. Kirim payload terintegrasi dengan penyesuaian action & otorisasi
         const response = await fetch(SCRIPT_URL, {
             method: "POST",
             body: JSON.stringify({ 
                 action: actionFix, 
                 row: barisTerpilih.row,
-                nip: usernameLogin,                // Diperlukan server untuk verifikasi kepemilikan data pegawai
-                usernameEksekutor: usernameLogin,  // Diperlukan server untuk proteksi area admin
+                nip: usernameLogin,
+                usernameEksekutor: usernameLogin,
                 ...data 
             })
         });
         
-        if(response.ok) {
+        // BACA JAWABAN SERVER
+        const result = await response.json(); 
+        
+        // VALIDASI SUKSES YANG SEBENARNYA
+        if(response.ok && result.status === "success") {
             updateDetailView(data); 
             toggleEditMode(false);
             
-            // 3. Jalankan penyegaran (refresh) tabel sesuai role masing-masing
             if (roleSaatIni === "admin") {
                 loadAdmin(); 
             } else {
                 alert("Pengajuan berhasil direvisi dan dikirim ulang ke admin!");
-                loadRiwayat(); // Memperbarui tabel riwayat lembur milik pegawai
+                loadRiwayat(); 
             }
         } else {
-            throw new Error("Gagal menyimpan ke server");
+            // Lempar pesan error spesifik dari server
+            throw new Error(result.message || "Gagal menyimpan ke server");
         }
     } catch (error) {
         console.error(error);
-        alert("Terjadi kesalahan saat menyimpan data.");
+        alert("Gagal: " + error.message);
     } finally {
         btnSimpan.innerText = teksAsli;
         btnSimpan.disabled = false;
@@ -2422,21 +2425,31 @@ async function simpanPerubahan() {
 }
 
 function updateDetailView(data) {
-    // Update data di memori agar tetap sinkron
-    barisTerpilih.tanggal = data.tanggal;
-    barisTerpilih.jam_masuk = data.jam_masuk;
-    barisTerpilih.jam_keluar = data.jam_keluar;
-    barisTerpilih.kategori = data.kategori;
-    barisTerpilih.jenis = data.jenis;
-    barisTerpilih.jadwal = data.jadwal;
-    // Deskripsi tidak perlu diperbarui karena tidak diubah di form edit
+    // 1. Update data di memori agar tetap sinkron
+    if (barisTerpilih) {
+        barisTerpilih.tanggal = data.tanggal;
+        barisTerpilih.jam_masuk = data.jam_masuk;
+        barisTerpilih.jam_keluar = data.jam_keluar;
+        barisTerpilih.kategori = data.kategori;
+        barisTerpilih.jenis = data.jenis;
+        barisTerpilih.jadwal = data.jadwal;
+        barisTerpilih.deskripsi = data.deskripsi;
+    }
 
-    // Update tampilan teks di modal
-    document.getElementById("detTgl").innerText = new Date(data.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
-    document.getElementById("detJam").innerText = `${data.jam_masuk} s/d ${data.jam_keluar}`;
-    document.getElementById("detJadwal").innerText = data.jadwal;
+    // 2. Update tampilan teks di modal menggunakan ID yang ada di HTML Anda
+    // Pastikan ID ini sesuai dengan yang tertulis di index.html
+    const elTgl = document.getElementById("detTanggal");
+    if (elTgl) elTgl.innerText = new Date(data.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+
+    // Jika detJam tidak ada di HTML, kita update elemen masing-masing saja
+    const elMasuk = document.getElementById("detMasuk");
+    const elKeluar = document.getElementById("detKeluar");
+    if (elMasuk) elMasuk.innerText = data.jam_masuk;
+    if (elKeluar) elKeluar.innerText = data.jam_keluar;
+
+    const elJadwal = document.getElementById("detJadwal");
+    if (elJadwal) elJadwal.innerText = data.jadwal;
     
-    // PERBAIKAN: Hapus alert ganda. Kita jadikan satu notifikasi saja di sini
     alert("Data berhasil diperbarui!");
 }
 
