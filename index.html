@@ -1780,9 +1780,8 @@ async function loadHistory() {
     document.getElementById("detDeskripsi").innerText = barisTerpilih.deskripsi || "-";
     
     // ==========================================
-    // 3. SETTING STATUS & PEMBERSIHAN TEKS (PENTING!)
+    // 3. SETTING STATUS & PEMBERSIHAN TEKS
     // ==========================================
-    // Tambahkan .trim() untuk membuang spasi gaib dari Google Sheet
     const statusText = String(barisTerpilih.status || "-").trim(); 
     const statusLower = statusText.toLowerCase();
     
@@ -1799,41 +1798,48 @@ async function loadHistory() {
     }
 
     // ==========================================
-    // 4. LOGIKA TOMBOL ADMIN/USER
+    // 4. LOGIKA TOMBOL ADMIN/USER (SUDAH DIPERBARUI)
     // ==========================================
     document.getElementById("kontenDetail").style.display = "block";
     document.getElementById("editModeFields").style.display = "none";
     
     const isPending = (statusLower === 'pending');
-    
-    // Bersihkan status monitoring juga agar aman
     const monitoringText = String(barisTerpilih.status_monitoring || "").trim().toUpperCase();
     const isLembur60 = (monitoringText === 'LEMBUR_60');
     
     if (userRole === 'admin') {
+        // LOGIKA TOMBOL UNTUK ADMIN
         document.getElementById("btnEdit").style.display = (isPending || isRejected) ? "block" : "none";
+        document.getElementById("btnEdit").innerText = "Edit";
+        document.getElementById("btnEdit").style.background = "#f59e0b"; // Warna kuning/orange untuk Admin
         
-        // Tampilkan container action jika statusnya Pending ATAU Rejected
         document.getElementById("adminActionSection").style.display = (isPending || isRejected) ? "block" : "none";
         
-        // RESET SEMUA TOMBOL JADI HILANG DULU (Mencegah error tumpang tindih)
         document.getElementById("actionNormal").style.display = "none";
         document.getElementById("actionNoted").style.display = "none";
         document.getElementById("actionRejected").style.display = "none";
 
-        // TAMPILKAN TOMBOL SESUAI STATUS TERBARU
         if (isPending) {
             if (isLembur60) {
-                document.getElementById("actionNoted").style.display = "block"; // Tombol Lengkap/Tidak Lengkap
+                document.getElementById("actionNoted").style.display = "block"; 
             } else {
-                document.getElementById("actionNormal").style.display = "block"; // Tombol Approve/Reject Biasa
+                document.getElementById("actionNormal").style.display = "block"; 
             }
         } else if (isRejected) {
-            document.getElementById("actionRejected").style.display = "block"; // Tombol Review Ulang
+            document.getElementById("actionRejected").style.display = "block"; 
         }
         
     } else {
-        document.getElementById("btnEdit").style.display = "none";
+        // LOGIKA TOMBOL UNTUK PEGAWAI (REVISI)
+        if (isRejected) {
+            // Munculkan tombol Revisi jika status Rejected
+            document.getElementById("btnEdit").style.display = "block";
+            document.getElementById("btnEdit").innerText = "Revisi Pengajuan";
+            document.getElementById("btnEdit").style.background = "#2563eb"; // Warna biru PLN untuk Pegawai
+        } else {
+            // Sembunyikan tombol jika status Pending / Approved
+            document.getElementById("btnEdit").style.display = "none";
+        }
         document.getElementById("adminActionSection").style.display = "none";
     }
     
@@ -2338,9 +2344,12 @@ async function simpanPerubahan() {
     btnSimpan.innerText = "Menyimpan...";
     btnSimpan.disabled = true;
 
+    // 1. Deteksi Role User yang sedang login
+    const roleSaatIni = localStorage.getItem("role");
+    const actionFix = roleSaatIni === "admin" ? "updateLembur" : "revisiLembur";
+
     try {
         const data = {
-            row: barisTerpilih.row,
             tanggal: document.getElementById("editTanggal").value,
             jam_masuk: document.getElementById("editMasuk").value,
             jam_keluar: document.getElementById("editKeluar").value,
@@ -2358,15 +2367,29 @@ async function simpanPerubahan() {
             x4: document.getElementById("calc40").innerText
         };
         
+        // 2. Kirim payload terintegrasi dengan penyesuaian action & otorisasi
         const response = await fetch(SCRIPT_URL, {
             method: "POST",
-            body: JSON.stringify({ action: "updateLembur", ...data })
+            body: JSON.stringify({ 
+                action: actionFix, 
+                row: barisTerpilih.row,
+                nip: usernameLogin,                // Diperlukan server untuk verifikasi kepemilikan data pegawai
+                usernameEksekutor: usernameLogin,  // Diperlukan server untuk proteksi area admin
+                ...data 
+            })
         });
         
         if(response.ok) {
             updateDetailView(data); 
             toggleEditMode(false);
-            loadAdmin(); 
+            
+            // 3. Jalankan penyegaran (refresh) tabel sesuai role masing-masing
+            if (roleSaatIni === "admin") {
+                loadAdmin(); 
+            } else {
+                alert("Pengajuan berhasil direvisi dan dikirim ulang ke admin!");
+                loadRiwayat(); // Memperbarui tabel riwayat lembur milik pegawai
+            }
         } else {
             throw new Error("Gagal menyimpan ke server");
         }
