@@ -2786,22 +2786,21 @@ function bukaDetailPegawaiLain(nip) {
     document.getElementById("searchPegawaiInput").value = "";
 }
 
-function validasiVersiAplikasi() {
-    // Menyimpan versi terbaru di localStorage atau bisa juga ditarik dari server
-    // Untuk tahap ini, kita simpan versi terakhir yang dijalankan pengguna
-    const versiLokal = localStorage.getItem("app_version");
-    
-    // Jika versi lokal berbeda dengan versi kode saat ini, berarti ada update!
-    if (versiLokal && versiLokal !== APP_VERSION) {
-        // Simpan versi baru agar tidak refresh terus-menerus
-        localStorage.setItem("app_version", APP_VERSION);
+async function validasiUpdateSistem() {
+    try {
+        const url = `${SCRIPT_URL}?action=checkVersion&t=${new Date().getTime()}`;
+        const response = await fetch(url);
         
-        // Paksa browser memuat ulang halaman untuk mengambil script terbaru
-        alert("Sistem telah diperbarui ke versi terbaru. Halaman akan dimuat ulang.");
-        window.location.reload(true); 
-    } else if (!versiLokal) {
-        // Jika baru pertama kali buka, simpan versinya
-        localStorage.setItem("app_version", APP_VERSION);
+        if (!response.ok) return; 
+        
+        const result = await response.json();
+        
+        if (result.version && result.version !== LOKAL_VERSION) {
+            alert("⚠️ Pembaruan Sistem!\n\nRumus atau fitur baru telah ditambahkan. Sistem akan dimuat ulang untuk menerapkan pembaruan.");
+            window.location.reload(true);
+        }
+    } catch (err) {
+        console.log("Cek versi gagal: ", err);
     }
 }
 </script>
