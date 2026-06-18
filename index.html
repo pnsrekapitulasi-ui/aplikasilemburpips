@@ -1291,7 +1291,7 @@ input:focus + .input-icon {
   // mengirim data ke spreadsheet lama Anda!
   // =========================================================================
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMnFRzP_V_SYtnLhhZ1Vi3mVOrAcrpBlyxvdrUfn0K2yafc-pXsHX4ensdxoFe7RqyMw/exec";
-  const APP_VERSION = "1.0.4";
+  const LOKAL_VERSION = "1.0.4";
   let namaUser = ""; 
   let usernameLogin = "";
   
@@ -2066,7 +2066,7 @@ async function kirimReject() {
     
     // PERBAIKAN: Menarik data NIP dan Nama otomatis saat form dibuka
     window.showFormLembur = function() { 
-        validasiVersiAplikasi();
+        validasiUpdateSistem();
         hideSemuaSection(); 
         document.getElementById("backButton").style.display = "block"; 
         document.getElementById("formLembur").style.display = "block"; 
