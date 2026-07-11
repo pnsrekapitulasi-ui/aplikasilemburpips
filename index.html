@@ -3654,17 +3654,16 @@ function populatePeriodeHistory() {
     let bulan = sekarang.getMonth();
     let hari = sekarang.getDate();
     
-    // Mulai dari siklus aktif (saat ini)
     let baseBulanStart = (hari >= 11) ? bulan : bulan - 1;
     
-    for(let i = 0; i < 3; i++) { // Mengambil 3 siklus terakhir saja agar tidak kepanjangan
+    for(let i = 0; i < 3; i++) { 
         let targetBulan = baseBulanStart - i;
         let tglEnd = new Date(tahun, targetBulan + 1, 10);
         let labelBulan = namaBulan[tglEnd.getMonth()] + " " + tglEnd.getFullYear();
         
-        // Menambahkan opsi per Tahap
-        select.innerHTML += `<option value="${i}_1">Siklus ${labelBulan} - Tahap 1 (11-${tglEnd.getMonth() === 0 ? 12 : tglEnd.getMonth()} s/d 30-${namaBulan[tglEnd.getMonth()-1]})</option>`;
-        select.innerHTML += `<option value="${i}_2">Siklus ${labelBulan} - Tahap 2 (01-${tglEnd.getMonth()+1} s/d 10-${namaBulan[tglEnd.getMonth()]})</option>`;
+        // Perubahan: Menghapus bagian dalam kurung (11-7 s/d 30-Juli)
+        select.innerHTML += `<option value="${i}_1">Siklus ${labelBulan} - Tahap 1</option>`;
+        select.innerHTML += `<option value="${i}_2">Siklus ${labelBulan} - Tahap 2</option>`;
     }
 }
 
