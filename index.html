@@ -598,24 +598,26 @@ input:focus + .input-icon {
 </head>
 
 <body>
-  <? if (statusOperasional === "MAINTENANCE") { ?>
-    <div class="container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; max-width: 450px; padding: 40px 30px;">
+    <!-- 1. KOTAK MAINTENANCE (Sembunyikan dari awal pakai display: none) -->
+    <div id="layarMaintenance" class="container" style="display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; max-width: 450px; padding: 40px 30px; margin: auto;">
         <div style="background: #fff5f5; width: 80px; height: 86px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; color: #ef4444; font-size: 36px; border: 2px dashed #fca5a5;">
             <i class="fas fa-tools fa-spin"></i>
         </div>
         <h2 style="color: #0f172a; font-weight: 900; font-size: 24px; letter-spacing: -0.5px; margin-bottom: 12px;">Sistem Under Maintenance</h2>
         <p style="color: #64748b; font-size: 13px; line-height: 1.6; margin-bottom: 25px;">
-            Mohon maaf, saat ini sistem sedang dalam proses **Optimalisasi Server** dan **Pembaruan Fitur Baru** untuk meningkatkan performa layanan rekapitulasi lembur.
+            Mohon maaf, saat ini sistem sedang dalam proses <b>Optimalisasi Server</b> dan <b>Pembaruan Fitur Baru</b> untuk meningkatkan performa layanan rekapitulasi lembur.
         </p>
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 12px; font-size: 11px; color: #475569; font-weight: 600; width: 100%;">
             <i class="fas fa-info-circle" style="color: #0284c7;"></i> Akses login untuk User dan Admin ditutup sementara hingga proses pemeliharaan selesai. Terima kasih atas pengertian Anda.
         </div>
     </div>
-  <? } else { ?>
-    
-    <div id="corporateHeader" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 260px; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); z-index: -1;">
-        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.15; background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
-    </div>
+
+    <!-- 2. BUNGKUS SELURUH APLIKASI UTAMA DI DALAM DIV INI -->
+    <div id="layarUtamaAplikasi" style="display: flex; width: 100%; flex-direction: column; align-items: center; justify-content: center;">
+        
+        <div id="corporateHeader" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 260px; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); z-index: -1;">
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.15; background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+        </div>
 
 <div class="container" style="display: flex; flex-direction: column;">
   <div class="content-wrapper">
@@ -3603,7 +3605,6 @@ async function submitDataKolektif() {
     }
 }
 
-// Fungsi untuk memanggil pop-up update
 async function validasiUpdateSistem() {
     try {
         const url = `${SCRIPT_URL}?action=checkVersion&t=${new Date().getTime()}`;
@@ -3612,20 +3613,26 @@ async function validasiUpdateSistem() {
         if (!response.ok) return; 
         const result = await response.json();
         
-        // Cek versi yang tersimpan di memori HP pegawai (default 1.0.0 jika baru pertama kali)
-        const savedVersion = localStorage.getItem("appVersionSaved") || "1.0.0";
+        // --- 1. CEK MAINTENANCE TERLEBIH DAHULU ---
+        if (result.status_sistem === "MAINTENANCE") {
+            // Sembunyikan aplikasi utama, tampilkan layar maintenance
+            document.getElementById("layarUtamaAplikasi").style.display = "none";
+            document.getElementById("layarMaintenance").style.display = "flex";
+            document.body.classList.remove("logged-in");
+            return; // Hentikan proses selanjutnya
+        } else {
+            // Pastikan aplikasi utama muncul jika status SELESAI
+            document.getElementById("layarUtamaAplikasi").style.display = "flex";
+            document.getElementById("layarMaintenance").style.display = "none";
+        }
+        // ------------------------------------------
         
-        // Jika ada versi baru yang lebih tinggi dari yang tersimpan di memori
+        // --- 2. CEK UPDATE VERSI SISTEM ---
+        const savedVersion = localStorage.getItem("appVersionSaved") || "1.0.0";
         if (result.version && result.version !== savedVersion) {
-            
-            // Masukkan teks dan versi ke dalam Pop-up
             document.getElementById("updateVersionNum").innerText = result.version;
-            document.getElementById("updateNotesContent").innerHTML = result.notes || "Sistem telah diperbarui untuk meningkatkan performa.";
-            
-            // Tampilkan Pop-up
+            document.getElementById("updateNotesContent").innerHTML = result.notes || "Sistem telah diperbarui.";
             document.getElementById("modalUpdateSystem").style.display = "flex";
-            
-            // Simpan versi baru ke memori agar pop-up tidak muncul berulang-ulang
             localStorage.setItem("appVersionSaved", result.version);
         }
     } catch (err) {
@@ -3823,5 +3830,6 @@ async function eksekusiCetak(jenisDokumen) {
 }
 </script>
 
-  <? } ?> </body>
+    </div> <!-- Penutup div layarUtamaAplikasi -->
+</body>
 </html>
