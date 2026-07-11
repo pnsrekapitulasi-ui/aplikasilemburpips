@@ -3686,21 +3686,17 @@ function bulatkanWaktu(waktuStr) {
 
 function populatePeriodeRiwayatUser() {
     const select = document.getElementById("filterPeriodeRiwayatUser");
-    if (!select || select.options.length > 0) return; // Proteksi: Mencegah duplikasi isi opsi bulan jika sudah di-load
+    if (!select || select.options.length > 0) return;
     
     const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     const sekarang = new Date();
-    let tahun = sekarang.getFullYear();
-    let bulan = sekarang.getMonth();
     let hari = sekarang.getDate();
+    let baseBulanStart = (hari >= 11) ? sekarang.getMonth() : sekarang.getMonth() - 1;
     
-    let baseBulanStart = (hari >= 11) ? bulan : bulan - 1;
-    
-    // Memunculkan opsi 6 siklus penggajian terakhir bagi user
     for(let i = 0; i < 6; i++) { 
-        let targetBulan = baseBulanStart - i;
-        let tglEnd = new Date(tahun, targetBulan + 1, 10); // Tanggal 10 sebagai penentu patokan nama bulan penggajian
-        let labelBulan = namaBulan[tglEnd.getMonth()] + " " + tglEnd.getFullYear();
+        // Ubah di sini: gunakan baseBulanStart + 1 agar labelnya bergeser ke bulan depan
+        let d = new Date(sekarang.getFullYear(), baseBulanStart - i + 1, 10);
+        let labelBulan = namaBulan[d.getMonth()] + " " + d.getFullYear();
         let label = (i === 0) ? `Aktif (Penggajian ${labelBulan})` : `Penggajian ${labelBulan}`;
         
         select.innerHTML += `<option value="${i}">${label}</option>`;
