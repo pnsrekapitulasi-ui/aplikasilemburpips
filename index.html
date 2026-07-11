@@ -13,6 +13,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google" content="notranslate">
   <title>Aplikasi Lembur</title>
+  <link rel="manifest" href="https://script.google.com/macros/s/AKfycbz4OvDIL8r5xEWxmXOKqCd4jIjhJIfn5A9RT_LraAds1OxXXW9pUYxVr-udGG_kCibd/exec?action=manifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Aplikasi Lembur">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
     body { background: #f1f5f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; transition: background 0.5s ease; }
@@ -579,6 +583,12 @@ input:focus + .input-icon {
     box-shadow: 0 12px 20px rgba(37, 99, 235, 0.3);
 }
 
+/* Tambahkan ini di CSS Anda */
+.btn-detail-history {
+    position: relative;
+    z-index: 10;
+}
+
 @keyframes containerAppear {
     from { opacity: 0; transform: translateY(15px) scale(0.98); }
     to { opacity: 1; transform: translateY(0) scale(1); }
@@ -588,9 +598,25 @@ input:focus + .input-icon {
 </head>
 
 <body>
+  <? if (statusOperasional === "MAINTENANCE") { ?>
+    <div class="container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; max-width: 450px; padding: 40px 30px;">
+        <div style="background: #fff5f5; width: 80px; height: 86px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; color: #ef4444; font-size: 36px; border: 2px dashed #fca5a5;">
+            <i class="fas fa-tools fa-spin"></i>
+        </div>
+        <h2 style="color: #0f172a; font-weight: 900; font-size: 24px; letter-spacing: -0.5px; margin-bottom: 12px;">Sistem Under Maintenance</h2>
+        <p style="color: #64748b; font-size: 13px; line-height: 1.6; margin-bottom: 25px;">
+            Mohon maaf, saat ini sistem sedang dalam proses **Optimalisasi Server** dan **Pembaruan Fitur Baru** untuk meningkatkan performa layanan rekapitulasi lembur.
+        </p>
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 12px; font-size: 11px; color: #475569; font-weight: 600; width: 100%;">
+            <i class="fas fa-info-circle" style="color: #0284c7;"></i> Akses login untuk User dan Admin ditutup sementara hingga proses pemeliharaan selesai. Terima kasih atas pengertian Anda.
+        </div>
+    </div>
+  <? } else { ?>
+    
     <div id="corporateHeader" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 260px; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); z-index: -1;">
         <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.15; background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px;"></div>
     </div>
+
 <div class="container" style="display: flex; flex-direction: column;">
   <div class="content-wrapper">
     <div id="headerApp" style="display:none;">
@@ -689,47 +715,57 @@ input:focus + .input-icon {
     </div>
 
     <div id="menuAdmin" style="display:none; margin-bottom:20px;">
-      <div class="menu-grid-container">
+    <div class="menu-grid-container">
         <div class="menu-box" onclick="showAdminPanel()">
-          <div class="menu-icon-wrapper theme-blue"><i class="fas fa-inbox"></i></div>
-          <span>INBOX</span>
+            <div class="menu-icon-wrapper theme-blue"><i class="fas fa-inbox"></i></div>
+            <span>INBOX</span>
         </div>
         <div class="menu-box" onclick="showApproved()">
-    <div class="menu-icon-wrapper" style="background: #dcfce7; color: #16a34a;"><i class="fas fa-check-circle"></i></div>
-    <span>APPROVED</span>
-</div>
+            <div class="menu-icon-wrapper" style="background: #dcfce7; color: #16a34a;"><i class="fas fa-check-circle"></i></div>
+            <span>APPROVED</span>
+        </div>
         <div class="menu-box" onclick="showRejected()">
-    <div class="menu-icon-wrapper" style="background: #fee2e2; color: #dc2626;"><i class="fas fa-times-circle"></i></div>
-    <span>REJECTED</span>
-</div>
+            <div class="menu-icon-wrapper" style="background: #fee2e2; color: #dc2626;"><i class="fas fa-times-circle"></i></div>
+            <span>REJECTED</span>
+        </div>
         <div class="menu-box" onclick="showHistory()">
-    <div class="menu-icon-wrapper" style="background: #e0f2fe; color: #0284c7;"><i class="fas fa-history"></i></div>
-    <span>HISTORY</span>
-</div>
-      </div>
+            <div class="menu-icon-wrapper" style="background: #e0f2fe; color: #0284c7;"><i class="fas fa-history"></i></div>
+            <span>HISTORY</span>
+        </div>
+        
+        <!-- TAMBAHKAN TOMBOL INI DI SINI -->
+        <div class="menu-box" onclick="showLog()">
+            <div class="menu-icon-wrapper" style="background: #e2e8f0; color: #475569;"><i class="fas fa-clipboard-list"></i></div>
+            <span>LOG AKTIVITAS</span>
+        </div>
+        <!-- --------------------------- -->
     </div>
+</div>
 
-    <div id="menuUser" style="display:none; margin-bottom:20px;">
+<div id="menuUser" style="display:none; margin-bottom:20px;">
   <div class="menu-grid-container">
     <div class="menu-box" onclick="showInfoPegawai()"><div class="menu-icon-wrapper theme-blue"><i class="fas fa-id-badge"></i></div><span>INFORMASI PEGAWAI</span></div>
     <div class="menu-box" onclick="showFormLembur()">
-    <div class="menu-icon-wrapper" style="background: #e0e7ff; color: #4338ca;"><i class="fas fa-file-signature"></i></div>
-    <span>FORM LEMBUR</span>
-</div>
-<div class="menu-box" onclick="showRiwayat()">
-    <div class="menu-icon-wrapper" style="background: #fef3c7; color: #b45309;"><i class="fas fa-chart-line"></i></div>
-    <span>HISTORY</span>
-</div>
-    <div class="menu-box" onclick="showLembur60()"><div class="menu-icon-wrapper theme-red"><i class="fas fa-triangle-exclamation"></i></div><span>LEMBUR >60</span></div>
-    
+        <div class="menu-icon-wrapper" style="background: #e0e7ff; color: #4338ca;"><i class="fas fa-file-signature"></i></div>
+        <span>FORM LEMBUR</span>
+    </div>
+    <div class="menu-box" onclick="showRiwayat()">
+        <div class="menu-icon-wrapper" style="background: #fef3c7; color: #b45309;"><i class="fas fa-chart-line"></i></div>
+        <span>HISTORY</span>
+    </div>
     <div class="menu-box" onclick="showLemburCombined()">
         <div class="menu-icon-wrapper theme-blue"><i class="fas fa-calendar-check"></i></div>
         <span>LEMBUR</span>
     </div>
     <div class="menu-box" onclick="showFeeProject()">
-    <div class="menu-icon-wrapper theme-yellow"><i class="fas fa-money-bill-wave"></i></div>
-    <span>FEE PROJECT</span>
-</div>
+        <div class="menu-icon-wrapper theme-yellow"><i class="fas fa-money-bill-wave"></i></div>
+        <span>FEE PROJECT</span>
+    </div>
+    <!-- TOMBOL BARU: KOTAK MASUK / LOG -->
+    <div class="menu-box" onclick="showUserInbox()">
+        <div class="menu-icon-wrapper" style="background: #fce7f3; color: #db2777;"><i class="fas fa-envelope-open-text"></i></div>
+        <span>KOTAK MASUK</span>
+    </div>
   </div>
 </div>
 
@@ -795,8 +831,73 @@ input:focus + .input-icon {
         </div>
     </div>
 </div>
-    <div id="formLembur" style="display:none;"><div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;"><div class="menu-icon-wrapper theme-blue" style="width: 42px; height: 42px; font-size: 18px;"><i class="fas fa-file-signature"></i></div><div><h2 style="color:#1e40af; margin: 0; font-size: 20px; font-weight: 800;">Pengajuan Lembur</h2></div></div><div style="background: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;"><div class="form-group-premium"><label>NIP PEGAWAI</label><input type="text" id="form_nip" class="premium-input read-only-input" readonly></div><div class="form-group-premium"><label>NAMA PEGAWAI</label><input type="text" id="form_nama" class="premium-input read-only-input" readonly></div><div class="form-group-premium"><label>TANGGAL LEMBUR</label><input type="date" id="tanggal" class="premium-input"></div><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;"><div class="form-group-premium"><label>JAM MASUK</label><input type="time" id="jam_masuk" class="premium-input" onchange="hitungSemua()"></div><div class="form-group-premium"><label>JAM KELUAR</label><input type="time" id="jam_keluar" class="premium-input" onchange="hitungSemua()"></div></div><div class="form-group-premium"><label>KATEGORI LEMBUR</label><select id="kategori_lembur" class="premium-input" onchange="hitungSemua()"><option value="HARI BIASA">HARI BIASA</option><option value="HARI LIBUR">HARI LIBUR</option></select></div><div class="form-group-premium"><label>JENIS LEMBUR</label><select id="jenis_lembur" class="premium-input" onchange="hitungSemua()"><option value="ADMIN/HAR">ADMIN/HAR</option><option value="OPERATOR">OPERATOR</option></select></div><div class="form-group-premium" style="margin-top: 10px;"><label>TOTAL JAM KERJA</label><input type="text" id="total_jam_kerja" class="premium-input read-only-input" readonly></div><div class="form-group-premium"><label>TOTAL JAM EFEKTIF (Kelipatan 5 Jam -1)</label><input type="text" id="total_jam_efektif" class="premium-input read-only-input" readonly style="color: #2563eb; font-weight: 800;"></div><div class="form-group-premium"><label>JADWAL (TERENCANA?)</label><select id="jadwal_lembur" class="premium-input"><option value="IYA">IYA (Terjadwal)</option><option value="TIDAK">TIDAK (Tidak Terjadwal)</option></select></div><div class="form-group-premium" style="margin-top: 15px;"><label>ISTIRAHAT</label><input type="text" id="val_istirahat" class="premium-input read-only-input" readonly placeholder="-"></div><div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px;"><div class="form-group-premium" style="margin-bottom: 0;"><label>x1.5</label><input type="text" id="val_x15" class="premium-input read-only-input" readonly placeholder="-" style="text-align: center;"></div><div class="form-group-premium" style="margin-bottom: 0;"><label>x2</label><input type="text" id="val_x2" class="premium-input read-only-input" readonly placeholder="-" style="text-align: center;"></div><div class="form-group-premium" style="margin-bottom: 0;"><label>x3</label><input type="text" id="val_x3" class="premium-input read-only-input" readonly placeholder="-" style="text-align: center;"></div><div class="form-group-premium" style="margin-bottom: 0;"><label>x4</label><input type="text" id="val_x4" class="premium-input read-only-input" readonly placeholder="-" style="text-align: center;"></div></div><div class="form-group-premium"><label>DESKRIPSI PEKERJAAN</label><textarea id="deskripsi" class="premium-input" placeholder="Masukkan deskripsi (Maks 35 Karakter)..." maxlength="35" oninput="this.value = this.value.replace(/[^a-zA-Z0-9 ]/g, '');"></textarea></div><button onclick="submitData()" class="btn-submit-premium"><i class="fas fa-paper-plane"></i> KIRIM PENGAJUAN</button></div></div>
-    <div id="successMessage" class="success-message">✅ Lemburan Berhasil Dikirim</div>
+    <div id="formLembur" style="display:none;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+        <div class="menu-icon-wrapper theme-blue" style="width: 42px; height: 42px; font-size: 18px;"><i class="fas fa-file-signature"></i></div>
+        <div><h2 style="color:#1e40af; margin: 0; font-size: 20px; font-weight: 800;">Pengajuan Lembur</h2></div>
+    </div>
+    
+    <div style="background: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
+        
+        <div class="form-group-premium"><label>NIP PEGAWAI (PEMBUAT)</label><input type="text" id="form_nip" class="premium-input read-only-input" readonly></div>
+        <div class="form-group-premium"><label>NAMA PEGAWAI (PEMBUAT)</label><input type="text" id="form_nama" class="premium-input read-only-input" readonly></div>
+        <div class="form-group-premium"><label>TANGGAL LEMBUR (KOLEKTIF)</label><input type="date" id="tanggal" class="premium-input"></div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="form-group-premium"><label>JAM MASUK (PEMBUAT)</label><input type="time" id="jam_masuk" class="premium-input" onchange="hitungSemua()"></div>
+            <div class="form-group-premium"><label>JAM KELUAR (PEMBUAT)</label><input type="time" id="jam_keluar" class="premium-input" onchange="hitungSemua()"></div>
+        </div>
+
+        <div id="containerRekan" style="background: #eff6ff; padding: 15px; border-radius: 12px; border: 1px dashed #bfdbfe; margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <label style="font-size: 12px; font-weight: 800; color: #1d4ed8; margin: 0;"><i class="fas fa-users"></i> REKAN LEMBUR (MAKS 2)</label>
+            </div>
+            
+            <div id="listRekanLembur"></div>
+            
+            <button id="btnTambahRekan" onclick="tambahRekanUI()" style="width: 100%; padding: 10px; background: #ffffff; color: #2563eb; border: 2px dashed #93c5fd; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.3s;">
+                <i class="fas fa-plus"></i> Tambah Rekan
+            </button>
+        </div>
+        <div class="form-group-premium"><label>KATEGORI LEMBUR (KOLEKTIF)</label><select id="kategori_lembur" class="premium-input" onchange="hitungSemua()"><option value="HARI BIASA">HARI BIASA</option><option value="HARI LIBUR">HARI LIBUR</option></select></div>
+        <div class="form-group-premium"><label>JENIS LEMBUR (KOLEKTIF)</label><select id="jenis_lembur" class="premium-input" onchange="hitungSemua()"><option value="ADMIN/HAR">ADMIN/HAR</option><option value="OPERATOR">OPERATOR</option></select></div>
+        
+        <div class="form-group-premium" style="margin-top: 10px;"><label>TOTAL JAM KERJA (PEMBUAT)</label><input type="text" id="total_jam_kerja" class="premium-input read-only-input" readonly></div>
+        <div class="form-group-premium"><label>TOTAL JAM EFEKTIF (PEMBUAT)</label><input type="text" id="total_jam_efektif" class="premium-input read-only-input" readonly style="color: #2563eb; font-weight: 800;"></div>
+        
+        <div class="form-group-premium"><label>JADWAL (TERENCANA?)</label><select id="jadwal_lembur" class="premium-input"><option value="IYA">IYA (Terjadwal)</option><option value="TIDAK">TIDAK (Tidak Terjadwal)</option></select></div>
+        
+        <div class="form-group-premium" style="margin-top: 15px;"><label>ISTIRAHAT (PEMBUAT)</label><input type="text" id="val_istirahat" class="premium-input read-only-input" readonly placeholder="-"></div>
+        
+        <div class="form-group-premium">
+            <label>STATUS PEKERJAAN</label>
+            <select id="status_pekerjaan" class="premium-input">
+                <option value="Finish">Finish</option>
+                <option value="Continue">Continue</option>
+                <option value="Waiting Material">Waiting Material</option>
+                <option value="Waiting Condition">Waiting Condition</option>
+            </select>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px;">
+            <div class="form-group-premium" style="margin-bottom: 0;"><label>x1.5</label><input type="text" id="val_x15" class="premium-input read-only-input" readonly placeholder="-" style="text-align: center;"></div>
+            <div class="form-group-premium" style="margin-bottom: 0;"><label>x2</label><input type="text" id="val_x2" class="premium-input read-only-input" readonly placeholder="-" style="text-align: center;"></div>
+            <div class="form-group-premium" style="margin-bottom: 0;"><label>x3</label><input type="text" id="val_x3" class="premium-input read-only-input" readonly placeholder="-" style="text-align: center;"></div>
+            <div class="form-group-premium" style="margin-bottom: 0;"><label>x4</label><input type="text" id="val_x4" class="premium-input read-only-input" readonly placeholder="-" style="text-align: center;"></div>
+        </div>
+        
+        <div class="form-group-premium"><label>DESKRIPSI PEKERJAAN</label><textarea id="deskripsi" class="premium-input" placeholder="Masukkan deskripsi (Maks 35 Karakter)..." maxlength="35" oninput="this.value = this.value.replace(/[^a-zA-Z0-9 ]/g, '');"></textarea></div>
+        
+        <button onclick="submitDataKolektif()" class="btn-submit-premium"><i class="fas fa-paper-plane"></i> KIRIM PENGAJUAN TIM</button>
+    </div>
+</div>
+    <div id="successMessage" class="success-message" style="background: #ecfdf5; border: 2px dashed #10b981;">
+    <div style="font-size: 16px; margin-bottom: 8px; color: #166534;">✅ Form Lembur Tersimpan!</div>
+    <div style="font-size: 12px; color: #15803d; font-weight: 600; line-height: 1.5;">
+        ⚠️ <span style="text-decoration: underline;">TINDAKAN SELANJUTNYA:</span><br>
+        Pengajuan Anda <b>BELUM</b> masuk ke Admin.<br>Buka menu <b>Riwayat</b>, klik <b>Detail</b>, lalu <b>Cetak SPKL</b> sekarang.
+    </div>
+</div>
 
   <div id="riwayatSection" style="display:none;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -811,7 +912,12 @@ input:focus + .input-icon {
         <button class="btn-refresh-premium" onclick="loadRiwayat()" title="Perbarui Data"><i class="fas fa-sync-alt"></i></button>
     </div>
 
-    <input type="text" id="searchRiwayat" class="search-input" placeholder="🔍 Cari..." onkeyup="filterTabel('riwayatBody', 'searchRiwayat')">
+    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+        <input type="text" id="searchRiwayat" class="search-input" style="margin-bottom: 0; flex: 1;" placeholder="🔍 Cari..." onkeyup="filterTabel('riwayatBody', 'searchRiwayat')">
+        
+        <select id="filterPeriodeRiwayatUser" onchange="loadRiwayat()" class="premium-input" style="width: auto; padding: 12px 10px !important;">
+            </select>
+    </div>
 
     <div class="admin-table-scroll">
         <table>
@@ -896,13 +1002,63 @@ input:focus + .input-icon {
 </div>
 
 <div id="lemburCombinedSection" style="display:none;">
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-        <div class="menu-icon-wrapper theme-blue" style="width: 42px; height: 42px; font-size: 18px;"><i class="fas fa-calendar-check"></i></div>
-        <div><h2 style="color:#1e40af; margin: 0; font-size: 20px; font-weight: 800;">Data Lembur</h2></div>
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px;">
+        <div class="menu-icon-wrapper theme-blue" style="width: 42px; height: 42px; font-size: 18px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);">
+            <i class="fas fa-calendar-check"></i>
+        </div>
+        <div>
+            <h2 style="color:#0f172a; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">Data Lembur</h2>
+            <span style="font-size: 11px; color: #64748b; font-weight: 600;">Pilih kategori menu pengajuan lembur Anda</span>
+        </div>
     </div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-        <button class="btn-submit-premium" onclick="showTerjadwal()">TERJADWAL</button>
-        <button class="btn-submit-premium" onclick="showTidakTerjadwal()" style="background: #d97706;">TIDAK TERJADWAL</button>
+    
+    <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 15px;">
+        
+        <div onclick="showTerjadwal()" style="display: flex; align-items: center; justify-content: space-between; background: #ffffff; border: 1px solid #e2e8f0; padding: 16px; border-radius: 16px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 6px rgba(15, 23, 42, 0.02);" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#3b82f6'; this.style.boxShadow='0 10px 20px rgba(37, 99, 235, 0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 4px 6px rgba(15, 23, 42, 0.02)';">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="width: 44px; height: 44px; background: #eff6ff; color: #2563eb; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <span style="font-size: 14px; font-weight: 800; color: #1e293b;">TERJADWAL</span>
+                    <span style="font-size: 11px; color: #64748b; font-weight: 500;">Lembur sesuai dengan jadwal dinas</span>
+                </div>
+            </div>
+            <div style="width: 28px; height: 28px; background: #f8fafc; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-chevron-right" style="color: #94a3b8; font-size: 12px;"></i>
+            </div>
+        </div>
+
+        <div onclick="showTidakTerjadwal()" style="display: flex; align-items: center; justify-content: space-between; background: #ffffff; border: 1px solid #e2e8f0; padding: 16px; border-radius: 16px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 6px rgba(15, 23, 42, 0.02);" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#f59e0b'; this.style.boxShadow='0 10px 20px rgba(245, 158, 11, 0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 4px 6px rgba(15, 23, 42, 0.02)';">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="width: 44px; height: 44px; background: #fef3c7; color: #d97706; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <span style="font-size: 14px; font-weight: 800; color: #1e293b;">TIDAK TERJADWAL</span>
+                    <span style="font-size: 11px; color: #64748b; font-weight: 500;">Penugasan insidental atau mendadak</span>
+                </div>
+            </div>
+            <div style="width: 28px; height: 28px; background: #f8fafc; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-chevron-right" style="color: #94a3b8; font-size: 12px;"></i>
+            </div>
+        </div>
+
+        <div onclick="showLembur60()" style="display: flex; align-items: center; justify-content: space-between; background: #ffffff; border: 1px solid #e2e8f0; padding: 16px; border-radius: 16px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 6px rgba(15, 23, 42, 0.02);" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#ef4444'; this.style.boxShadow='0 10px 20px rgba(239, 68, 68, 0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 4px 6px rgba(15, 23, 42, 0.02)';">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="width: 44px; height: 44px; background: #fee2e2; color: #dc2626; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                    <i class="fas fa-triangle-exclamation"></i>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <span style="font-size: 14px; font-weight: 800; color: #1e293b;">LEBIH 60 JAM</span>
+                    <span style="font-size: 11px; color: #64748b; font-weight: 500;">Monitoring akumulasi lembur kritis</span>
+                </div>
+            </div>
+            <div style="width: 28px; height: 28px; background: #f8fafc; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-chevron-right" style="color: #94a3b8; font-size: 12px;"></i>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -918,6 +1074,54 @@ input:focus + .input-icon {
     <p style="text-align: center; color: #64748b; font-size: 14px; margin-top: 20px;">
         Halaman Fee Project sedang dikembangkan.
     </p>
+</div>
+
+<div id="userInboxSection" style="display:none; margin-top: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="menu-icon-wrapper" style="background: #fce7f3; color: #db2777; width: 42px; height: 42px; font-size: 18px;">
+                <i class="fas fa-envelope-open-text"></i>
+            </div>
+            <div>
+                <h2 style="color:#1e40af; margin: 0; font-size: 20px; font-weight: 800;">Kotak Masuk</h2>
+                <span style="font-size: 11px; color: #64748b; font-weight: 600;">Pusat info & log aktivitas Anda</span>
+            </div>
+        </div>
+        <button class="btn-refresh-premium" onclick="loadUserInbox()" title="Perbarui Data"><i class="fas fa-sync-alt"></i></button>
+    </div>
+
+    <!-- KARTU INFORMASI / PENGUMUMAN SISTEM -->
+    <div style="background: linear-gradient(135deg, #0284c7, #0369a1); color: white; padding: 18px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(2, 132, 199, 0.2); position: relative; overflow: hidden;">
+        <!-- Hiasan latar -->
+        <i class="fas fa-bullhorn" style="position: absolute; right: -15px; bottom: -20px; font-size: 100px; opacity: 0.1; transform: rotate(-15deg);"></i>
+        
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; position: relative; z-index: 2;">
+            <div style="background: rgba(255,255,255,0.2); width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-info-circle" style="font-size:16px; color:#ffffff;"></i>
+            </div>
+            <h3 style="margin:0; font-size:14px; font-weight:800; letter-spacing:0.5px;">INFORMASI SISTEM TERKINI</h3>
+        </div>
+        <p style="margin:0; font-size:12px; line-height:1.6; color:#f0f9ff; position: relative; z-index: 2;">
+            Sistem rekapitulasi lembur berjalan normal. Selalu pantau menu ini untuk melihat update terkait jadwal pemeliharaan (maintenance), rilis fitur baru, serta riwayat interaksi pengajuan Anda.
+        </p>
+    </div>
+
+    <div style="margin-bottom: 12px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">
+        <h3 style="font-size: 13px; margin: 0; color: #475569; font-weight: 800; text-transform: uppercase;">Log Aktivitas Anda</h3>
+    </div>
+
+    <div class="admin-table-scroll" style="max-height: 400px;">
+        <table>
+            <thead>
+                <tr>
+                    <th>WAKTU</th>
+                    <th>AKSI</th>
+                    <th>KETERANGAN</th>
+                </tr>
+            </thead>
+            <tbody id="userInboxBody"></tbody>
+        </table>
+    </div>
 </div>
 
     <div id="adminPanel" style="display:none; margin-top: 20px;">
@@ -998,7 +1202,14 @@ input:focus + .input-icon {
         </button>
     </div>
 
-    <input type="text" id="searchRejected" class="search-input" placeholder="🔍 Cari nama atau NIP..." onkeyup="filterTabel('rejectedBody', 'searchRejected')" style="margin-bottom: 15px;">
+    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+        <input type="text" id="searchRejected" class="search-input" style="margin-bottom: 0;" placeholder="🔍 Cari nama atau NIP..." onkeyup="filterTabel('rejectedBody', 'searchRejected')">
+        
+        <select id="filterPeriodeRejected" onchange="showRejected()" class="premium-input" style="width: auto; padding: 12px 10px !important;">
+            <option value="aktif">Periode Aktif</option>
+            <option value="prev">Periode Sebelumnya</option>
+        </select>
+    </div>
 
     <div class="admin-table-scroll">
         <table>
@@ -1013,27 +1224,35 @@ input:focus + .input-icon {
 <div id="historySection" style="display:none; margin-top: 20px;">
     <div style="margin-bottom: 20px;">
         <h2 style="color:#0f172a; font-size: 20px; margin: 0; font-weight: 800;">History Lembur</h2>
-        <span style="font-size: 11px; color: #64748b; font-weight: 600;">Daftar lembur yang sudah Approved/Rejected periode 11-10.</span>
+        <span style="font-size: 11px; color: #64748b; font-weight: 600;">Rekap data per siklus penggajian (Tgl 11 - 10)</span>
     </div>
 
     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-    <button class="btn-submit-premium" style="background: #059669; padding: 10px;" onclick="doArchive()">
-        <i class="fas fa-archive"></i> ARSIP DATA LAMA
-    </button>
-    <button class="btn-submit-premium" style="background: #2563eb; padding: 10px;" onclick="doDownload()">
-        <i class="fas fa-file-excel"></i> DOWNLOAD (.CSV)
-    </button>
+        <button class="btn-submit-premium" style="background: #059669; padding: 10px;" onclick="doArchive()">
+            <i class="fas fa-archive"></i> ARSIP DATA LAMA
+        </button>
+        <button class="btn-submit-premium" style="background: #2563eb; padding: 10px;" onclick="doDownload()">
+            <i class="fas fa-file-excel"></i> DOWNLOAD (.XLS)
+        </button>
     </div>
 
-    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-        <input type="text" id="searchHistory" class="search-input" style="margin-bottom: 0;" placeholder="🔍 Cari nama..." onkeyup="filterTabel('historyBody', 'searchHistory')">
+    <!-- FILTER BARU: GABUNGAN PERIODE & DATA > 60 JAM -->
+    <div style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;">
+        <input type="text" id="searchHistory" class="search-input" style="margin-bottom: 0; flex: 1; min-width: 140px;" placeholder="🔍 Cari nama..." onkeyup="filterTabel('historyBody', 'searchHistory')">
         
-        <select id="filterPeriode" onchange="loadHistory()" class="premium-input" style="width: auto; padding: 12px 10px !important;">
-            <option value="aktif">Periode Aktif</option>
-            <option value="prev">Periode Sebelumnya</option>
+        <select id="filterPeriodeHistory" onchange="loadHistory()" class="premium-input" style="width: auto; padding: 12px 10px !important;">
+            <!-- Isi dengan: 0_1 (Aktif Tahap 1), 0_2 (Aktif Tahap 2), 1_1 (Prev Tahap 1), dst -->
+        </select>
+
+        <select id="filterTipeLembur" onchange="loadHistory()" class="premium-input" style="width: auto; padding: 12px 10px !important;">
+          <option value="all">Gabungan</option>
+          <option value="normal_all">Normal < 60 Jam</option>
+          <option value="normal_terjadwal">Normal < 60 Jam Terjadwal</option>
+          <option value="normal_tidak">Normal < 60 Jam Tidak Terjadwal</option>
+          <option value="60">Kritis > 60 Jam</option>
         </select>
         
-        <button class="btn-refresh-premium" onclick="loadHistory()" title="Perbarui Data" style="height: 48px; width: 48px;">
+        <button class="btn-refresh-premium" onclick="loadHistory()" title="Perbarui Data" style="height: 44px; width: 44px; flex-shrink: 0;">
             <i class="fas fa-sync-alt"></i>
         </button>
     </div>
@@ -1041,26 +1260,57 @@ input:focus + .input-icon {
     <div class="admin-table-scroll">
         <table>
             <thead>
-                <tr>
-                    <th>NIP</th>
-                    <th>Nama</th>
-                    <th>Tanggal</th>
-                    <th>Aksi</th>
-                </tr>
+                <tr><th>NIP</th><th>Nama</th><th>Tanggal</th><th>Aksi</th></tr>
             </thead>
             <tbody id="historyBody"></tbody>
         </table>
     </div>
 </div>
 
+<div id="logSection" style="display:none; margin-top: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+            <h2 style="color:#0f172a; font-size: 20px; margin: 0; font-weight: 800;">Log Aktivitas</h2>
+            <span style="font-size: 11px; color: #64748b; font-weight: 600;">Jejak digital seluruh aksi sistem</span>
+        </div>
+        <button class="btn-refresh-premium" onclick="showLog()" title="Perbarui Data"><i class="fas fa-sync-alt"></i></button>
+    </div>
+    <div class="admin-table-scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th>PELAKU</th>
+                    <th>AKSI</th>
+                    <th>DETAIL</th>
+                </tr>
+            </thead>
+            <tbody id="logBody"></tbody>
+        </table>
+    </div>
+</div>
+
 <div id="modalDetailAdmin" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.6); z-index:9999; justify-content:center; align-items:center; backdrop-filter: blur(4px);">
-    <div style="background:#ffffff; width:90%; max-width:450px; border-radius:20px; padding:25px; box-shadow:0 25px 50px rgba(0,0,0,0.15); animation: containerAppear 0.3s ease; max-height: 90vh; overflow-y: auto;">
+    
+    <div style="background:#ffffff; width:90%; max-width:450px; border-radius:20px; padding:25px; box-shadow:0 25px 50px rgba(0,0,0,0.15); animation: containerAppear 0.3s ease; max-height: 90vh; overflow-y: auto; pointer-events: auto;">
         
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:15px; margin-bottom:15px;">
-            <h3 style="color:#1e40af; font-size:18px; font-weight:800; margin:0; flex-grow: 1;">Detail Pengajuan</h3>
-            <div style="display:flex; gap:8px;">
-                <button id="btnEdit" onclick="toggleEditMode(true)" style="background:#f59e0b; color:white; border:none; padding:6px 12px; border-radius:8px; font-weight:bold; cursor:pointer;">Edit</button>
-                <button onclick="tutupModalDetail()" class="btn-close-modal">Tutup</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 15px; flex-wrap: nowrap;">
+            <h3 style="color: #1e40af; font-size: 16px; font-weight: 800; margin: 0; flex-shrink: 1; margin-right: 10px;">Detail Pengajuan</h3>
+            
+            <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                <button id="btnCetakSPKL" onclick="bukaModalCetak(barisTerpilih.row)" 
+                style="background: #0284c7; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; display: none; white-space: nowrap;">
+                <i class="fas fa-print"></i> Cetak
+                </button>
+                
+                <button id="btnEdit" onclick="toggleEditMode(true)" 
+                    style="background: #f59e0b; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; display: none; white-space: nowrap;">
+                    Edit
+                </button>
+                
+                <button onclick="tutupModalDetail()" class="btn-close-modal" 
+                    style="background: #e2e8f0; color: #475569; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 12px; margin: 0; white-space: nowrap;">
+                    Tutup
+                </button>
             </div>
         </div>
 
@@ -1101,9 +1351,23 @@ input:focus + .input-icon {
         <strong>Deskripsi Pekerjaan:</strong><br><span id="detDeskripsi" style="font-style:italic;">-</span>
     </div>
 
+    <div style="margin-top: 15px;">
+        <strong>Status Pekerjaan:</strong><br><span id="detStatusPekerjaan" style="color: #d97706; font-weight: bold;">-</span>
+    </div>
+    <div style="margin-top: 15px; padding: 10px; background: #f0f9ff; border: 1px dashed #bae6fd; border-radius: 8px;">
+        <strong>Nomor/SPKL:</strong> 
+        <span id="detSpkl" style="color: #0284c7; font-weight: 800; font-size: 14px;">-</span>
+    </div>
+
     <div id="boxAlasanReject" style="display: none; margin-top: 15px; padding: 12px; background: #fee2e2; border-left: 4px solid #dc2626; border-radius: 6px;">
         <strong style="color: #dc2626;"><i class="fas fa-exclamation-circle"></i> Alasan Penolakan:</strong><br>
         <span id="detAlasanReject" style="color: #991b1b; font-weight: 600; display: block; margin-top: 4px;">-</span>
+    </div>
+
+    <!-- TAMBAHKAN KOTAK INI -->
+    <div id="boxWarningCetak" style="display: none; margin-top: 15px; padding: 12px; background: #fffbeb; border-left: 4px solid #d97706; border-radius: 6px;">
+        <strong style="color: #d97706;"><i class="fas fa-exclamation-triangle"></i> Wajib Cetak SPKL!</strong><br>
+        <span style="color: #92400e; font-weight: 600; display: block; margin-top: 4px;">Klik tombol <b>Cetak</b> di atas. Pengajuan ini belum bisa dilihat oleh Admin sebelum Anda mencetak Dokumen SPKL.</span>
     </div>
 </div>
 
@@ -1176,9 +1440,10 @@ input:focus + .input-icon {
             
             <div id="actionNormal" style="display:none;">
     <div style="display:flex; gap:10px;">
-        <button onclick="prosesApprove('Rejected')" style="flex:1; background:#dc2626; color:white; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">
+        <button onclick="bukaModalAlasan()" style="flex:1; background:#dc2626; color:white; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">
             Reject
         </button>
+        
         <button onclick="prosesApprove('Approved')" style="flex:1; background:#10b981; color:white; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">
             Approve
         </button>
@@ -1214,6 +1479,55 @@ input:focus + .input-icon {
         <div style="display:flex; gap:10px;">
             <button onclick="tutupModalAlasan()" style="flex:1; padding:10px; border:none; background:#cbd5e1; border-radius:8px; font-weight:bold;">Batal</button>
             <button onclick="kirimReject()" style="flex:1; padding:10px; border:none; background:#dc2626; color:white; border-radius:8px; font-weight:bold;">Kirim</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PENGUMUMAN UPDATE SISTEM -->
+<div id="modalUpdateSystem" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.7); z-index:10005; justify-content:center; align-items:center; backdrop-filter: blur(4px);">
+    <div style="background:#ffffff; width:90%; max-width:400px; border-radius:20px; padding:25px; box-shadow:0 25px 50px rgba(0,0,0,0.25); animation: containerAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        
+        <div style="display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 15px;">
+            <div style="width: 45px; height: 45px; background: #e0f2fe; color: #0284c7; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px;">
+                <i class="fas fa-bullhorn"></i>
+            </div>
+            <div>
+                <h3 style="margin: 0; color: #0f172a; font-size: 18px; font-weight: 800;">Pembaruan Sistem</h3>
+                <span style="font-size: 11px; color: #0284c7; font-weight: 700; background: #e0f2fe; padding: 2px 8px; border-radius: 10px;">Versi <span id="updateVersionNum"></span></span>
+            </div>
+        </div>
+        
+        <div id="updateNotesContent" style="font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 20px; max-height: 250px; overflow-y: auto; padding-right: 5px;">
+            <!-- Isi catatan rilis akan disuntikkan dari backend -->
+        </div>
+        
+        <button onclick="tutupModalUpdateSystem()" style="width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+            SAYA MENGERTI
+        </button>
+    </div>
+</div>
+
+<!-- MODAL DETAIL LOG -->
+<div id="modalDetailLog" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.6); z-index:10000; justify-content:center; align-items:center; backdrop-filter: blur(4px);">
+    <div style="background:#ffffff; width:90%; max-width:400px; border-radius:20px; padding:25px; box-shadow:0 25px 50px rgba(0,0,0,0.15); animation: containerAppear 0.3s ease;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 15px;">
+            <h3 style="color: #1e40af; font-size: 16px; font-weight: 800; margin: 0;">Detail Log Aktivitas</h3>
+            <button onclick="tutupModalDetailLog()" class="btn-close-modal">Tutup</button>
+        </div>
+        
+        <div style="font-size:13px; color:#475569; background:#f8fafc; padding:15px; border-radius:10px; border:1px solid #e2e8f0; text-align: left; display: flex; flex-direction: column; gap: 12px;">
+            
+            <!-- Kotak Sorotan Utama untuk AKSI SISTEM -->
+            <div style="background: #eff6ff; padding: 12px; border-radius: 8px; border: 1px dashed #bfdbfe; text-align: center; margin-bottom: 5px;">
+                <span style="font-size:10px; color:#64748b; text-transform:uppercase; font-weight:700; display:block; margin-bottom:4px;">Aksi Sistem</span>
+                <span id="detLogAksi" style="color:#1d4ed8; font-weight:900; font-size:16px; letter-spacing: 0.5px; text-transform: uppercase;">-</span>
+            </div>
+
+            <div><strong style="color:#0f172a; font-size:11px; text-transform:uppercase;">Waktu:</strong><br><span id="detLogWaktu" style="color:#334155; font-weight:600;">-</span></div>
+            <div><strong style="color:#0f172a; font-size:11px; text-transform:uppercase;">Pelaku / Eksekutor:</strong><br><span id="detLogPelaku" style="color:#1e40af; font-weight:800; font-size:14px;">-</span></div>
+            <div><strong style="color:#0f172a; font-size:11px; text-transform:uppercase;">Target NIP:</strong><br><span id="detLogNip" style="color:#334155; font-weight:600;">-</span></div>
+            
         </div>
     </div>
 </div>
@@ -1282,6 +1596,50 @@ input:focus + .input-icon {
         </div>
     </div>
 </div>
+
+<div id="modalCetakPilihan" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.6); z-index:10005; justify-content:center; align-items:center; backdrop-filter: blur(4px); animation: fadeIn 0.3s ease;">
+    <div style="background:#ffffff; width:90%; max-width:400px; border-radius:24px; overflow:hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: slideUp 0.3s ease;">
+        
+        <div style="background: linear-gradient(135deg, #f8fafc, #f1f5f9); padding: 20px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 36px; height: 36px; background: #e0e7ff; color: #4338ca; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                    <i class="fas fa-print"></i>
+                </div>
+                <h3 style="margin: 0; color: #0f172a; font-size: 16px; font-weight: 800;">Pilih Dokumen Cetak</h3>
+            </div>
+            
+            <button onclick="tutupModalCetak()" style="background: transparent !important; box-shadow: none !important; border: none !important; width: 32px !important; height: 32px !important; padding: 0 !important; color: #94a3b8; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#e2e8f0'; this.style.color='#ef4444';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#94a3b8';">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div style="padding: 24px; display: flex; flex-direction: column; gap: 12px;">
+            <p style="margin: 0 0 10px 0; font-size: 12px; color: #64748b; text-align: center;">Silakan pilih format dokumen lembur yang ingin Anda unduh (PDF):</p>
+            
+            <button onclick="eksekusiCetak('SPKL')" id="btnOpsiSPKL" style="display: flex; align-items: center; justify-content: space-between; width: 100%; background: #ffffff; border: 2px solid #e2e8f0; padding: 16px; border-radius: 16px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#3b82f6'; this.style.backgroundColor='#eff6ff';" onmouseout="this.style.borderColor='#e2e8f0'; this.style.backgroundColor='#ffffff';">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-file-signature" style="color: #3b82f6; font-size: 20px;"></i>
+                    <div style="text-align: left;">
+                        <div style="font-size: 14px; font-weight: 800; color: #1e293b;">Dokumen SPKL</div>
+                        <div style="font-size: 10px; color: #64748b;">Surat Perintah Kerja Lembur Formal</div>
+                    </div>
+                </div>
+                <i class="fas fa-download" style="color: #94a3b8;"></i>
+            </button>
+
+            <button onclick="eksekusiCetak('DESKRIPSI')" id="btnOpsiDeskripsi" style="display: flex; align-items: center; justify-content: space-between; width: 100%; background: #ffffff; border: 2px solid #e2e8f0; padding: 16px; border-radius: 16px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#10b981'; this.style.backgroundColor='#ecfdf5';" onmouseout="this.style.borderColor='#e2e8f0'; this.style.backgroundColor='#ffffff';">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-file-alt" style="color: #10b981; font-size: 20px;"></i>
+                    <div style="text-align: left;">
+                        <div style="font-size: 14px; font-weight: 800; color: #1e293b;">Uraian Deskripsi</div>
+                        <div style="font-size: 10px; color: #64748b;">Laporan Detail Pekerjaan Lembur</div>
+                    </div>
+                </div>
+                <i class="fas fa-download" style="color: #94a3b8;"></i>
+            </button>
+        </div>
+    </div>
+</div>
 <script>
   // =========================================================================
   // WARNING PENTING !!!
@@ -1291,7 +1649,7 @@ input:focus + .input-icon {
   // mengirim data ke spreadsheet lama Anda!
   // =========================================================================
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMnFRzP_V_SYtnLhhZ1Vi3mVOrAcrpBlyxvdrUfn0K2yafc-pXsHX4ensdxoFe7RqyMw/exec";
-  const LOKAL_VERSION = "1.0.4";
+  const LOKAL_VERSION = "1.0.7";
   let namaUser = ""; 
   let usernameLogin = "";
   
@@ -1321,12 +1679,9 @@ input:focus + .input-icon {
   const formatAngka = (val) => { const num = parseFloat(val) || 0; return (num % 1 === 0) ? num.toString() : num.toFixed(1); };
   const formatStatus = (status) => { 
     const s = String(status).trim().toLowerCase(); 
-    if (s === 'approved') {
-        return `<span class="status-badge status-approved">APPROVED</span>`;
-    }
-    if (s === 'rejected') {
-        return `<span class="status-badge status-rejected">REJECTED</span>`;
-    }
+    if (s === 'approved') return `<span class="status-badge status-approved">APPROVED</span>`;
+    if (s === 'rejected') return `<span class="status-badge status-rejected">REJECTED</span>`;
+    if (s === 'menunggu cetak') return `<span class="status-badge" style="background:#f1f5f9; color:#475569; border: 1px solid #cbd5e1;">Wajib Cetak</span>`;
     return `<span class="status-badge status-pending">PENDING</span>`; 
 };
 
@@ -1399,6 +1754,7 @@ input:focus + .input-icon {
 
       namaUser = result.nama; usernameLogin = username;
       localStorage.setItem("isLogin", "true"); localStorage.setItem("usernameLogin", username); localStorage.setItem("namaUser", result.nama); localStorage.setItem("role", result.role); localStorage.setItem("jabatanUser", result.jabatan || "Pegawai PLN"); localStorage.setItem("fotoUser", result.foto || ""); localStorage.setItem("emailUser", result.email || "Belum ada email");
+      localStorage.setItem("kodeUnit", result.kode_unit || "PNS");
       renderDashboard(result.role, result.nama, result.jabatan, result.foto, username, result.email);
     } catch(err) { alert("Gagal terhubung ke server."); btn.disabled = false; btn.innerText = "Login"; }
   }
@@ -1487,11 +1843,22 @@ function bukaGridMenu() {
 }
 
   function hitungSemua() {
-    const masuk = document.getElementById("jam_masuk").value; 
-    const keluar = document.getElementById("jam_keluar").value; 
+    let masuk = document.getElementById("jam_masuk").value; 
+    let keluar = document.getElementById("jam_keluar").value; 
     const kategori = document.getElementById("kategori_lembur").value; 
     const jenis = document.getElementById("jenis_lembur").value; 
     
+    // 1. KOREKSI INDEPENDEN (Auto-koreksi jalan secara instan)
+    if (masuk) {
+        masuk = bulatkanWaktu(masuk);
+        document.getElementById("jam_masuk").value = masuk;
+    }
+    if (keluar) {
+        keluar = bulatkanWaktu(keluar);
+        document.getElementById("jam_keluar").value = keluar;
+    }
+    
+    // 2. Jika salah satu belum diisi, berhenti kalkulasi total (tapi pembulatan di atas tetap berhasil)
     if (!masuk || !keluar) return;
     
     const [h1, m1] = masuk.split(':').map(Number); 
@@ -1510,26 +1877,18 @@ function bukaGridMenu() {
         x2 = Math.max(0, jamEfektif - 1); 
         x3 = 0; 
     } else if (kategori === "HARI LIBUR") {
-    x15 = 0;
-    
-    if (jenis === "ADMIN/HAR") {
-        // Skema 5 hari kerja
-        x2 = Math.min(jamEfektif, 8); // 8 jam pertama x2
-        x3 = jamEfektif >= 9 ? 1 : 0; // Jam ke-9 masuk x3
-    } else {
-        // Skema 6 hari kerja (OPERATOR)
-        x2 = Math.min(jamEfektif, 7); // 7 jam pertama x2
-        x3 = jamEfektif >= 8 ? 1 : 0; // Jam ke-8 masuk x3
+        x15 = 0;
+        if (jenis === "ADMIN/HAR") {
+            x2 = Math.min(jamEfektif, 8); 
+            x3 = jamEfektif >= 9 ? 1 : 0; 
+        } else {
+            x2 = Math.min(jamEfektif, 7); 
+            x3 = jamEfektif >= 8 ? 1 : 0; 
+        }
     }
-}
     
     x4 = jamEfektif - (x15 + x2 + x3); 
     if (x4 < 0) x4 = 0; 
-    
-    // PERBAIKAN:
-    // 1. Hapus + " Jam" agar hanya angka yang tersimpan
-    // 2. Ganti logika ternary (val === 0 ? "" : ...) menjadi (val || 0) 
-    //    agar angka 0 tetap muncul di input.
     
     document.getElementById("total_jam_kerja").value = formatAngka(totalJam); 
     document.getElementById("total_jam_efektif").value = formatAngka(jamEfektif); 
@@ -1545,14 +1904,19 @@ function bukaGridMenu() {
 async function loadRiwayat() { 
     const body = document.getElementById("riwayatBody"); 
     
-    // 1. Tampilkan status memuat langsung di dalam tabel
+    // Tampilkan status memuat langsung di dalam baris tabel
     body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Memuat data...</td></tr>"; 
     
+    // Ambil nilai offset siklus penggajian dari dropdown milik user
+    const dropdownPeriode = document.getElementById("filterPeriodeRiwayatUser");
+    const offsetFix = dropdownPeriode ? dropdownPeriode.value : 0;
+    
     try { 
-        const response = await fetch(`${SCRIPT_URL}?action=riwayat&nama=${encodeURIComponent(namaUser)}`); 
+        // Mengirimkan parameter namaUser dan offset ke backend
+        const response = await fetch(`${SCRIPT_URL}?action=riwayat&nama=${encodeURIComponent(namaUser)}&offset=${offsetFix}&kode_unit=${localStorage.getItem("kodeUnit")}`); 
         const result = await response.json(); 
         
-        // Simpan data ke memori agar bisa dibaca fungsi detail
+        // Simpan data ke memori agar bisa dibaca fungsi detail pop-up
         dataAdminSementara = result; 
         
         let html = ""; 
@@ -1571,11 +1935,9 @@ async function loadRiwayat() {
             }); 
             body.innerHTML = html;
         } else {
-            // 2. Jika data kosong, tampilkan pesan ramah
-            body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Tidak ada riwayat lembur ditemukan.</td></tr>"; 
+            body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Tidak ada riwayat lembur ditemukan pada periode ini.</td></tr>"; 
         }
     } catch(err) { 
-        // 3. Jika error, beri tahu user
         body.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red;'>Gagal memuat data.</td></tr>"; 
     }
 }
@@ -1585,7 +1947,8 @@ async function loadRiwayat() {
     body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Memuat data...</td></tr>";
     
     try { 
-        const response = await fetch(`${SCRIPT_URL}?action=riwayat60&nama=${encodeURIComponent(namaUser)}`); 
+        // Ganti baris fetch lama dengan ini:
+        const response = await fetch(`${SCRIPT_URL}?action=riwayat60&nama=${encodeURIComponent(namaUser)}&kode_unit=${localStorage.getItem("kodeUnit")}`); 
         const result = await response.json(); 
         
         dataAdminSementara = result; 
@@ -1618,7 +1981,8 @@ async function loadRiwayat() {
     const body = document.getElementById("terjadwalBody");
     body.innerHTML = "<tr><td colspan='4'>Memuat data...</td></tr>";
     try {
-        const response = await fetch(`${SCRIPT_URL}?action=terjadwal&nama=${encodeURIComponent(namaUser)}`);
+        // PERBAIKAN: Mengubah action=riwayat60 menjadi action=terjadwal
+        const response = await fetch(`${SCRIPT_URL}?action=terjadwal&nama=${encodeURIComponent(namaUser)}&kode_unit=${localStorage.getItem("kodeUnit")}`);
         const result = await response.json();
         dataAdminSementara = result; // Penting untuk tombol Detail
         let html = "";
@@ -1638,7 +2002,8 @@ async function loadTidakTerjadwal() {
     const body = document.getElementById("tidakTerjadwalBody");
     body.innerHTML = "<tr><td colspan='4'>Memuat data...</td></tr>";
     try {
-        const response = await fetch(`${SCRIPT_URL}?action=tidakTerjadwal&nama=${encodeURIComponent(namaUser)}`);
+        // Ganti baris fetch lama dengan ini:
+        const response = await fetch(`${SCRIPT_URL}?action=tidakTerjadwal&nama=${encodeURIComponent(namaUser)}&kode_unit=${localStorage.getItem("kodeUnit")}`);
         const result = await response.json();
         dataAdminSementara = result; // Penting untuk tombol Detail
         let html = "";
@@ -1659,7 +2024,8 @@ async function loadTidakTerjadwal() {
     body.innerHTML = "<tr><td colspan='4'>Memuat data...</td></tr>";
     
     try {
-        const response = await fetch(`${SCRIPT_URL}?action=admin`);
+        // Ganti baris fetch lama dengan ini:
+        const response = await fetch(`${SCRIPT_URL}?action=admin&kode_unit=${localStorage.getItem("kodeUnit")}`);
         const result = await response.json();
         
         const pendingData = result.filter(item => String(item.status || "").trim().toLowerCase() === 'pending');
@@ -1691,16 +2057,31 @@ async function loadTidakTerjadwal() {
     }
 }
 
-  async function showHistory() { hideSemuaSection(); document.getElementById("backButton").style.display = "block"; document.getElementById("historySection").style.display = "block"; currentView = 'historySection'; loadHistory(); }
+async function showHistory() { 
+    hideSemuaSection(); 
+    document.getElementById("backButton").style.display = "block"; 
+    document.getElementById("historySection").style.display = "block"; 
+    currentView = 'historySection'; 
+    
+    populatePeriodeHistory(); // Panggil pengisi nama bulan
+    loadHistory(); 
+}
 
 async function loadHistory() {
     const body = document.getElementById("historyBody");
-    const tipe = document.getElementById("filterPeriode").value;
     
-    body.innerHTML = "<tr><td colspan='4'>Memuat data...</td></tr>";
+    // Ambil nilai dari dropdown, contoh: "0_1"
+    const valPeriode = document.getElementById("filterPeriodeHistory").value;
+    const [offset, tahap] = valPeriode.split('_'); // Pecah menjadi offset=0 dan tahap=1
+    
+    const tipeLembur = document.getElementById("filterTipeLembur").value;
+    
+    body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Memuat data...</td></tr>";
     
     try {
-        const response = await fetch(`${SCRIPT_URL}?action=history&tipe=${tipe}`);
+        // Tambahkan parameter &tahap=${tahap}
+        const url = `${SCRIPT_URL}?action=history&offset=${offset}&tahap=${tahap}&tipeLembur=${tipeLembur}&kode_unit=${localStorage.getItem("kodeUnit")}`;
+        const response = await fetch(url);
         const result = await response.json();
         
         dataAdminSementara = result; 
@@ -1721,10 +2102,44 @@ async function loadHistory() {
             });
             body.innerHTML = html;
         } else {
-            body.innerHTML = "<tr><td colspan='4'>Tidak ada riwayat untuk periode ini</td></tr>";
+            body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Tidak ada riwayat untuk filter ini</td></tr>";
         }
     } catch (err) {
-        body.innerHTML = "<tr><td colspan='4'>Gagal memuat data</td></tr>";
+        body.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red;'>Gagal memuat data</td></tr>";
+    }
+}
+
+async function doDownload() {
+    // 1. Ambil nilai mentah dari dropdown (contoh: "0_1")
+    const valPeriode = document.getElementById("filterPeriodeHistory").value;
+    // 2. Pecah nilainya (sama seperti di loadHistory)
+    const [offset, tahap] = valPeriode.split('_'); 
+    const tipeLembur = document.getElementById("filterTipeLembur").value;
+    
+    // 3. Kirim parameter terpisah (tambah &tahap=${tahap})
+    const url = `${SCRIPT_URL}?action=export&offset=${offset}&tahap=${tahap}&tipeLembur=${tipeLembur}&kode_unit=${localStorage.getItem("kodeUnit")}`;
+    
+    alert("Sedang menyiapkan file excel laporan...");
+
+    try {
+        const response = await fetch(url);
+        const tsvData = await response.text();
+        
+        const blob = new Blob([tsvData], { type: 'application/vnd.ms-excel' });
+        const link = document.createElement("a");
+        const urlBlob = URL.createObjectURL(blob);
+        
+        const dropdown = document.getElementById("filterPeriodeHistory");
+        let namaFile = dropdown.options[dropdown.selectedIndex].text.replace(/[\(\) ]/g, "_").replace(/_+/g, "_");
+        
+        link.setAttribute("href", urlBlob);
+        link.setAttribute("download", `Laporan_${namaFile}_Tipe_${tipeLembur}.xls`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+    } catch (error) {
+        alert("Gagal mendownload file.");
     }
 }
 
@@ -1793,6 +2208,8 @@ async function loadHistory() {
     document.getElementById("detX3").innerText = barisTerpilih.x3 || "0";
     document.getElementById("detX4").innerText = barisTerpilih.x4 || "0";
     document.getElementById("detDeskripsi").innerText = barisTerpilih.deskripsi || "-";
+    const elStatusPek = document.getElementById("detStatusPekerjaan");
+    if (elStatusPek) elStatusPek.innerText = barisTerpilih.status_pekerjaan || "-";
     
     // ==========================================
     // 3. SETTING STATUS & PEMBERSIHAN TEKS
@@ -1803,6 +2220,21 @@ async function loadHistory() {
     document.getElementById("detStatus").innerText = statusText;
     document.getElementById("detStatus").style.color = (statusLower === 'approved') ? '#10b981' : (statusLower === 'rejected' ? '#dc2626' : '#d97706');
 
+    // --- LOGIKA STATUS CETAK (SESUAI PERMINTAAN) ---
+    const elSpkl = document.getElementById("detSpkl");
+    if (elSpkl) {
+        if (barisTerpilih.no_spkl && String(barisTerpilih.no_spkl).trim() !== "") {
+            elSpkl.innerText = "Telah Dicetak";
+            elSpkl.style.color = "#10b981"; // Hijau
+            elSpkl.style.fontWeight = "800";
+        } else {
+            elSpkl.innerText = "Belum Dicetak";
+            elSpkl.style.color = "#dc2626"; // Merah
+            elSpkl.style.fontWeight = "600";
+        }
+    }
+    // ------------------------------------------------
+
     // LOGIKA REJECTED
     const isRejected = (statusLower === 'rejected');
     if (isRejected) {
@@ -1812,8 +2244,15 @@ async function loadHistory() {
         document.getElementById("boxAlasanReject").style.display = "none";
     }
 
+    // LOGIKA PERINGATAN WAJIB CETAK
+    if (statusLower === 'menunggu cetak' && userRole !== 'admin') {
+        document.getElementById("boxWarningCetak").style.display = "block";
+    } else {
+        document.getElementById("boxWarningCetak").style.display = "none";
+    }
+
     // ==========================================
-    // 4. LOGIKA TOMBOL ADMIN/USER (SUDAH DIPERBARUI)
+    // 4. LOGIKA TOMBOL ADMIN/USER (REVISI)
     // ==========================================
     document.getElementById("kontenDetail").style.display = "block";
     document.getElementById("editModeFields").style.display = "none";
@@ -1822,11 +2261,20 @@ async function loadHistory() {
     const monitoringText = String(barisTerpilih.status_monitoring || "").trim().toUpperCase();
     const isLembur60 = (monitoringText === 'LEMBUR_60');
     
+    // --- LOGIKA TOMBOL CETAK (HANYA PEGAWAI) ---
+    const btnCetak = document.getElementById("btnCetakSPKL");
+    if (userRole !== 'admin') {
+        btnCetak.style.display = "block";
+    } else {
+        btnCetak.style.display = "none";
+    }
+    // -------------------------------------------
+
     if (userRole === 'admin') {
         // LOGIKA TOMBOL UNTUK ADMIN
         document.getElementById("btnEdit").style.display = (isPending || isRejected) ? "block" : "none";
         document.getElementById("btnEdit").innerText = "Edit";
-        document.getElementById("btnEdit").style.background = "#f59e0b"; // Warna kuning/orange untuk Admin
+        document.getElementById("btnEdit").style.background = "#f59e0b";
         
         document.getElementById("adminActionSection").style.display = (isPending || isRejected) ? "block" : "none";
         
@@ -1845,20 +2293,18 @@ async function loadHistory() {
         }
         
     } else {
-        // LOGIKA TOMBOL UNTUK PEGAWAI (REVISI)
+        // LOGIKA TOMBOL UNTUK PEGAWAI
         if (isRejected) {
-            // Munculkan tombol Revisi jika status Rejected
             document.getElementById("btnEdit").style.display = "block";
             document.getElementById("btnEdit").innerHTML = '<i class="fas fa-edit"></i> Revisi';
-            document.getElementById("btnEdit").style.fontSize = "12px"; // Memperkecil font agar tombol tidak terlalu besar
-            document.getElementById("btnEdit").style.background = "#2563eb"; // Warna biru PLN untuk Pegawai
+            document.getElementById("btnEdit").style.fontSize = "12px";
+            document.getElementById("btnEdit").style.background = "#2563eb";
         } else {
-            // Sembunyikan tombol jika status Pending / Approved
             document.getElementById("btnEdit").style.display = "none";
         }
         document.getElementById("adminActionSection").style.display = "none";
     }
-    
+
     document.getElementById("modalDetailAdmin").style.display = "flex";
 }
 
@@ -1876,38 +2322,48 @@ async function prosesApprove(keputusan) {
     
     let inputCatatan = "";
     
-    if (keputusan === 'Rejected') {
-        inputCatatan = prompt("Masukkan alasan penolakan:");
-        // Jika klik batal atau layarnya kepencet di luar
+    // Karena 'Rejected' sekarang ditangani oleh kirimReject(),
+    // fungsi ini hanya fokus untuk 'Approved'
+    if (keputusan === 'Approved') {
+        // --- LOGIKA VALIDASI KEAMANAN SPKL ---
+        inputCatatan = prompt("🔒 VALIDASI KEAMANAN\nMasukkan Nomor SPKL dari form fisik (atau Scan Barcode):");
+        
         if (inputCatatan === null) return; 
-        if (inputCatatan.trim() === "") { 
-            alert("⚠️ Alasan penolakan WAJIB diisi!"); 
+        
+        let spklInput = String(inputCatatan).trim();
+        let spklDatabase = barisTerpilih.no_spkl ? String(barisTerpilih.no_spkl).trim() : "";
+        
+        // 🔒 VALIDASI APPROVE
+        if (spklInput === "") {
+            alert("❌ GAGAL APPROVE!\nNomor SPKL wajib dimasukkan!");
             return; 
         }
-    } 
-    else if (keputusan === 'Approved') {
-        inputCatatan = prompt("Masukkan Nomor SPKL (Kosongkan jika tidak ada):");
-        // Jika klik batal atau layarnya kepencet di luar
-        if (inputCatatan === null) return; 
+        
+        if (spklInput !== spklDatabase) {
+            // Kita tetap beri tahu jika memang datanya kosong, 
+            // tapi tidak menampilkan nomor SPKL yang benar agar aman.
+            let info = (spklDatabase === "") ? "Belum ada SPKL terdaftar di sistem." : "Nomor SPKL yang Anda masukkan tidak valid.";
+            
+            alert("❌ VALIDASI GAGAL!\n" + info + "\n\nPastikan dokumen fisik sesuai dengan data pengajuan.");
+            return; 
+        }
     }
 
     const containerAction = document.getElementById("actionNormal");
     const originalHTML = containerAction.innerHTML; 
     
     try {
-        // Tampilkan loading berputar
         containerAction.innerHTML = `<div style="text-align:center; color:#10b981; font-weight:bold; padding:10px; width:100%; font-size:14px;"><i class="fas fa-spinner fa-spin"></i> Sedang Memproses...</div>`;
 
         const url = `${SCRIPT_URL}?action=updateStatus&row=${barisTerpilih.row}&status=${keputusan}&deskripsi=${encodeURIComponent(inputCatatan)}`;
         const response = await fetch(url);
         
-        // 🛡️ PROTEKSI 2: Cek apakah jaringan HP ngadat
         if (!response.ok) throw new Error("Jaringan gagal terhubung ke Server.");
         
         const result = await response.json();
         
         if(result.status === "success") {
-            alert(result.message || "Proses berhasil dieksekusi!");
+            alert(result.message || "Proses berhasil!");
             containerAction.innerHTML = originalHTML; 
             tutupModalDetail();
             loadAdmin(); 
@@ -1916,30 +2372,74 @@ async function prosesApprove(keputusan) {
             containerAction.innerHTML = originalHTML; 
         }
     } catch(err) {
-        alert("🚨 Error Teknis: " + err.message + "\nPastikan sinyal/internet Anda stabil.");
+        alert("🚨 Error Teknis: " + err.message);
         containerAction.innerHTML = originalHTML; 
     }
 }
 
+function bukaModalAlasan() {
+    document.getElementById("modalAlasanReject").style.display = "flex";
+}
+
+function tutupModalAlasan() {
+    document.getElementById("modalAlasanReject").style.display = "none";
+    document.getElementById("alasanReject").value = ""; 
+}
+
 async function kirimReject() {
     const alasan = document.getElementById("alasanReject").value.trim();
-    if (!alasan) { alert("Wajib isi alasan penolakan!"); return; }
-
-    // PERBAIKAN: Gunakan variabel 'alasan' (hasil ketikan admin), bukan teks hardcoded "Alasan Penolakan"
-    const resp = await fetch(`${SCRIPT_URL}?action=updateStatus&row=${barisTerpilih.row}&status=Rejected&deskripsi=${encodeURIComponent(alasan)}`);
     
-    if (resp.ok) {
-        alert("Pengajuan telah ditolak.");
-        tutupModalAlasan();
+    // 🔒 VALIDASI REJECT 1: Tidak boleh kosong, strip (-), atau titik (.)
+    if (!alasan || alasan === "-" || alasan === ".") { 
+        alert("❌ GAGAL REJECT!\nKeterangan alasan reject wajib diisi dengan jelas (tidak boleh kosong, '-', atau '.')."); 
+        return; 
+    }
+    
+    // 🔒 VALIDASI REJECT 2: Minimal wajib 2 kata
+    const jumlahKata = alasan.split(/\s+/).filter(function(kata) {
+        return kata.length > 0;
+    }).length;
+    
+    if (jumlahKata < 2) {
+        alert("❌ GAGAL REJECT!\nAlasan penolakan terlalu pendek. Wajib memasukkan minimal 2 kata sebagai Konfirmasi Admin.");
+        return;
+    }
+
+    // =========================================================
+    // INDIKATOR LOADING: Mengubah tombol Kirim menjadi Spinner
+    // =========================================================
+    const btnKirim = document.querySelector('button[onclick="kirimReject()"]');
+    const teksAsli = btnKirim.innerHTML;
+    btnKirim.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+    btnKirim.disabled = true;
+
+    try {
+        const resp = await fetch(`${SCRIPT_URL}?action=updateStatus&row=${barisTerpilih.row}&status=Rejected&deskripsi=${encodeURIComponent(alasan)}`);
         
-        // Reset textarea setelah sukses
-        document.getElementById("alasanReject").value = ""; 
-        
-        // Refresh daftar data
-        if(document.getElementById("adminPanel").style.display === "block") loadAdmin();
-        if(document.getElementById("historySection").style.display === "block") loadHistory();
-    } else {
-        alert("Gagal memproses.");
+        if (resp.ok) {
+            alert("✅ Pengajuan telah ditolak.");
+            
+            // Tutup modal alasan penolakan & detail admin
+            tutupModalAlasan();
+            tutupModalDetail();
+            
+            // Reset textarea setelah sukses
+            document.getElementById("alasanReject").value = ""; 
+            
+            // Refresh daftar data
+            if(document.getElementById("adminPanel").style.display === "block") loadAdmin();
+            if(document.getElementById("historySection").style.display === "block") loadHistory();
+        } else {
+            alert("❌ Gagal memproses penolakan. Terjadi kesalahan pada server.");
+        }
+    } catch (error) {
+        alert("🚨 Error Teknis: Koneksi terputus. Pastikan jaringan internet Anda stabil.");
+    } finally {
+        // =========================================================
+        // KEMBALIKAN TOMBOL: Mengembalikan teks tombol semula jika selesai/gagal
+        // =========================================================
+        btnKirim.innerHTML = teksAsli;
+        btnKirim.disabled = false;
     }
 }
 
@@ -2009,7 +2509,9 @@ async function kirimReject() {
             x2: parseFloat(document.getElementById("val_x2").value) || 0, 
             x3: parseFloat(document.getElementById("val_x3").value) || 0, 
             x4: parseFloat(document.getElementById("val_x4").value) || 0, 
-            deskripsi: document.getElementById("deskripsi").value.trim() 
+            deskripsi: document.getElementById("deskripsi").value.trim(), 
+            status_pekerjaan: document.getElementById("status_pekerjaan").value,
+            kode_unit: localStorage.getItem("kodeUnit") || "PNS"
         }; 
 
         // 5. Kirim ke server
@@ -2044,20 +2546,19 @@ async function kirimReject() {
     document.getElementById("lembur60Section").style.display = "none";
     document.getElementById("terjadwalSection").style.display = "none";
     document.getElementById("tidakTerjadwalSection").style.display = "none";
-    
-    // 3. Reset Halaman Baru (Wajib ditambahkan di sini)
     document.getElementById("lemburCombinedSection").style.display = "none";
     document.getElementById("feeProjectSection").style.display = "none";
+    document.getElementById("userInboxSection").style.display = "none"; // <-- INI BARU
     
-    // 4. Reset Panel Admin
+    // 3. Reset Panel Admin
     document.getElementById("adminPanel").style.display = "none";
     document.getElementById("approvedSection").style.display = "none";
     document.getElementById("rejectedSection").style.display = "none";
     document.getElementById("historySection").style.display = "none";
+    document.getElementById("logSection").style.display = "none";
     
-    // 5. Reset Pesan & Modal
+    // 4. Reset Pesan & Modal
     document.getElementById("successMessage").style.display = "none";
-    
     tutupModalDetail(); 
 }
   
@@ -2078,23 +2579,25 @@ async function kirimReject() {
     };
     
     window.showRiwayat = function() { 
-    hideSemuaSection(); 
-    document.getElementById("backButton").style.display = "block"; 
-    document.getElementById("riwayatSection").style.display = "block"; 
-    currentView = 'riwayatSection';
-    
-    // 1. PANGGIL TABEL DULUAN BIAR INSTAN (Tanpa jeda)
-    loadRiwayat(); 
-    
-    // 2. AMBIL JUMLAH TERBARU DARI SERVER DI BACKGROUND (Tanpa await)
-    fetch(`${SCRIPT_URL}?action=checkNotif&nama=${encodeURIComponent(namaUser)}`)
-        .then(response => response.json())
-        .then(result => {
-            // Simpan jumlah penolakan saat ini ke localStorage
-            localStorage.setItem('lastRejectedCount_' + usernameLogin, result.count);
-        })
-        .catch(e => console.error("Gagal update count:", e));
-};
+        hideSemuaSection(); 
+        document.getElementById("backButton").style.display = "block"; 
+        document.getElementById("riwayatSection").style.display = "block"; 
+        currentView = 'riwayatSection';
+        
+        // ISI dropdown pilihan bulan siklus penggajian user
+        populatePeriodeRiwayatUser();
+        
+        // PANGGIL TABEL DULUAN BIAR INSTAN
+        loadRiwayat(); 
+        
+        // AMBIL JUMLAH TERBARU DARI SERVER DI BACKGROUND
+        fetch(`${SCRIPT_URL}?action=checkNotif&nama=${encodeURIComponent(namaUser)}`)
+            .then(response => response.json())
+            .then(result => {
+                localStorage.setItem('lastRejectedCount_' + usernameLogin, result.count);
+            })
+            .catch(e => console.error("Gagal update count:", e));
+    };
 
     window.showLembur60 = function() { hideSemuaSection(); document.getElementById("backButton").style.display = "block"; document.getElementById("lembur60Section").style.display = "block"; currentView = 'lembur60Section'; loadRiwayat60(); };
     // Tambahkan baris currentView di setiap fungsi ini:
@@ -2116,21 +2619,19 @@ window.showTidakTerjadwal = function() {
 };
   });
 
-  function kembaliMenu() {
+function kembaliMenu() {
     hideSemuaSection();
     
-    // 1. Logika Balik Khusus untuk Sub-Menu Lembur
-    if (currentView === 'terjadwalSection' || currentView === 'tidakTerjadwalSection') {
+    // 1. Logika Balik Khusus untuk Sub-Menu di dalam Pintu Menu LEMBUR
+    if (currentView === 'terjadwalSection' || currentView === 'tidakTerjadwalSection' || currentView === 'lembur60Section') {
         document.getElementById("lemburCombinedSection").style.display = "block";
         document.getElementById("backButton").style.display = "block";
         currentView = 'lemburCombinedSection';
     } 
     // 2. Logika Balik untuk Sub-Menu Standar (Level 1)
     else {
-        const adminSubMenus = ['adminPanel', 'approvedSection', 'rejectedSection', 'historySection'];
-        
-        // TAMBAHKAN 'riwayatSection' ke dalam daftar di bawah ini:
-        const userSubMenus = ['infoPegawaiSection', 'formLembur', 'riwayatSection', 'lembur60Section', 'lemburCombinedSection', 'feeProjectSection'];
+        const adminSubMenus = ['adminPanel', 'approvedSection', 'rejectedSection', 'historySection', 'logSection'];
+        const userSubMenus = ['infoPegawaiSection', 'formLembur', 'riwayatSection', 'lemburCombinedSection', 'feeProjectSection', 'userInboxSection']; // <-- INI BARU
 
         if (adminSubMenus.includes(currentView)) {
             document.getElementById("menuAdmin").style.display = "block";
@@ -2196,7 +2697,10 @@ window.showTidakTerjadwal = function() {
       
       // Panggil fungsi restore posisi menu terakhir
       restoreViewTerakhir();
-  };
+
+      // --- TAMBAHKAN BARIS INI: Cek otomatis apakah ada pembaruan setelah login ---
+      validasiUpdateSistem();
+};
   
   async function uploadFoto() {
     const input = document.getElementById("fileInputFoto");
@@ -2270,7 +2774,8 @@ window.showTidakTerjadwal = function() {
     
     try {
         // Panggil fungsi baru dengan filter periode
-        const response = await fetch(`${SCRIPT_URL}?action=getLemburStatus&status=approved`);
+        // Ganti baris fetch lama dengan ini:
+        const response = await fetch(`${SCRIPT_URL}?action=getLemburStatus&status=approved&kode_unit=${localStorage.getItem("kodeUnit")}`);
         const result = await response.json();
         
         dataAdminSementara = result; 
@@ -2294,14 +2799,16 @@ async function showRejected() {
     currentView = 'rejectedSection'; 
     
     const body = document.getElementById("rejectedBody");
-    body.innerHTML = "<tr><td colspan='4'>Memuat data...</td></tr>";
+    body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Memuat data...</td></tr>";
+    
+    // Ambil nilai periode dari dropdown filter
+    const tipePeriode = document.getElementById("filterPeriodeRejected") ? document.getElementById("filterPeriodeRejected").value : "aktif";
     
     try {
-        // Fetch langsung data yang sudah difilter oleh server
-        const response = await fetch(`${SCRIPT_URL}?action=getLemburStatus&status=rejected`);
+        // Ambil data ke server dengan menyertakan parameter rentang periode
+        const response = await fetch(`${SCRIPT_URL}?action=getLemburStatus&status=rejected&kode_unit=${localStorage.getItem("kodeUnit")}&periode=${tipePeriode}`);
         const result = await response.json();
         
-        // Tidak perlu .filter() lagi karena server sudah mengirim data yang tepat
         dataAdminSementara = result; 
         
         let html = "";
@@ -2320,10 +2827,10 @@ async function showRejected() {
             });
             body.innerHTML = html;
         } else {
-            body.innerHTML = "<tr><td colspan='4'>Tidak ada data rejected</td></tr>";
+            body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Tidak ada data rejected pada periode ini</td></tr>";
         }
     } catch (err) {
-        body.innerHTML = "<tr><td colspan='4'>Gagal memuat data</td></tr>";
+        body.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red;'>Gagal memuat data</td></tr>";
     }
 }
 
@@ -2462,15 +2969,23 @@ function updateDetailView(data) {
 }
 
 function hitungLemburEdit() {
-    // Mengambil nilai dari input form Edit
-    const masuk = document.getElementById("editMasuk").value;
-    const keluar = document.getElementById("editKeluar").value;
+    let masuk = document.getElementById("editMasuk").value;
+    let keluar = document.getElementById("editKeluar").value;
     const kategori = document.getElementById("editKategori").value;
     const jenis = document.getElementById("editJenis").value;
     
+    // KOREKSI INDEPENDEN UNTUK FORM EDIT
+    if (masuk) {
+        masuk = bulatkanWaktu(masuk);
+        document.getElementById("editMasuk").value = masuk;
+    }
+    if (keluar) {
+        keluar = bulatkanWaktu(keluar);
+        document.getElementById("editKeluar").value = keluar;
+    }
+    
     if (!masuk || !keluar) return;
 
-    // Logika perhitungan yang sama
     const [h1, m1] = masuk.split(':').map(Number);
     const [h2, m2] = keluar.split(':').map(Number);
     let diff = (h2 * 60 + m2) - (h1 * 60 + m1);
@@ -2487,23 +3002,19 @@ function hitungLemburEdit() {
         x2 = Math.max(0, jamEfektif - 1);
         x3 = 0;
     } else if (kategori === "HARI LIBUR") {
-    x15 = 0;
-    
-    if (jenis === "ADMIN/HAR") {
-        // Skema 5 hari kerja
-        x2 = Math.min(jamEfektif, 8); // 8 jam pertama x2
-        x3 = jamEfektif >= 9 ? 1 : 0; // Jam ke-9 masuk x3
-    } else {
-        // Skema 6 hari kerja (OPERATOR)
-        x2 = Math.min(jamEfektif, 7); // 7 jam pertama x2
-        x3 = jamEfektif >= 8 ? 1 : 0; // Jam ke-8 masuk x3
+        x15 = 0;
+        if (jenis === "ADMIN/HAR") {
+            x2 = Math.min(jamEfektif, 8); 
+            x3 = jamEfektif >= 9 ? 1 : 0; 
+        } else {
+            x2 = Math.min(jamEfektif, 7); 
+            x3 = jamEfektif >= 8 ? 1 : 0; 
+        }
     }
-}
     
     x4 = jamEfektif - (x15 + x2 + x3);
     if (x4 < 0) x4 = 0;
 
-    // Menampilkan ke UI modal Edit
     document.getElementById("calcTotalKerja").innerText = formatAngka(totalJam) + " Jam";
     document.getElementById("calcIstirahat").innerText = (istirahat === 0) ? "0 Jam" : formatAngka(istirahat) + " Jam";
     document.getElementById("calcTotalEfektif").innerText = formatAngka(jamEfektif) + " Jam";
@@ -2511,33 +3022,6 @@ function hitungLemburEdit() {
     document.getElementById("calc20").innerText = (x2 === 0) ? "0" : formatAngka(x2);
     document.getElementById("calc30").innerText = (x3 === 0) ? "0" : formatAngka(x3);
     document.getElementById("calc40").innerText = (x4 === 0) ? "0" : formatAngka(x4);
-}
-
-async function doDownload() {
-    const tipe = document.getElementById("filterPeriode").value;
-    const url = `${SCRIPT_URL}?action=export&tipe=${tipe}`;
-    
-    alert("Sedang menyiapkan file download...");
-
-    try {
-        const response = await fetch(url);
-        const tsvData = await response.text();
-        
-        // Buat file .xls (Excel akan membuka file Tab-separated sebagai .xls dengan sempurna)
-        const blob = new Blob([tsvData], { type: 'application/vnd.ms-excel' });
-        
-        const link = document.createElement("a");
-        const urlBlob = URL.createObjectURL(blob);
-        
-        link.setAttribute("href", urlBlob);
-        link.setAttribute("download", `Laporan_Lembur_${tipe}.xls`); // Ekstensi .xls
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-    } catch (error) {
-        alert("Gagal mendownload file.");
-    }
 }
 
 async function doArchive() {
@@ -2700,7 +3184,8 @@ let dataSeluruhPegawai = [];
 
 async function initDataPegawai() {
     try {
-        const response = await fetch(`${SCRIPT_URL}?action=getListPegawai`);
+        // Ganti baris fetch lama dengan ini:
+        const response = await fetch(`${SCRIPT_URL}?action=getListPegawai&kode_unit=${localStorage.getItem("kodeUnit")}`);
         const data = await response.json();
         
         // --- TAMBAHAN DEBUGGING ---
@@ -2786,23 +3271,557 @@ function bukaDetailPegawaiLain(nip) {
     document.getElementById("searchPegawaiInput").value = "";
 }
 
+// Tambahkan variabel ini di luar fungsi agar data log bisa disimpan ke memori
+let dataLogSementara = []; 
+
+async function showLog() {
+    hideSemuaSection();
+    document.getElementById("backButton").style.display = "block";
+    document.getElementById("logSection").style.display = "block";
+    currentView = 'logSection';
+    
+    const kodeUnit = localStorage.getItem("kodeUnit");
+    
+    const body = document.getElementById("logBody");
+    // Ubah colspan menjadi 3 karena sekarang hanya ada 3 kolom
+    body.innerHTML = "<tr><td colspan='3'>Memuat data log...</td></tr>"; 
+    
+    try {
+        const resp = await fetch(`${SCRIPT_URL}?action=getLog&kode_unit=${encodeURIComponent(kodeUnit)}`);
+        const data = await resp.json();
+        
+        // Simpan ke memori lokal untuk dipakai modal
+        dataLogSementara = data; 
+        
+        if(data.length > 0) {
+            body.innerHTML = data.map((row, index) => {
+                // Menentukan warna tulisan AKSI agar lebih rapi & estetik
+                let aksiTeks = String(row[2]).toUpperCase() || '-';
+                let warnaAksi = "#0284c7"; // Biru Default (Untuk Cetak/Update/Submit)
+                
+                if(aksiTeks.includes("APPROVE")) warnaAksi = "#16a34a"; // Hijau
+                if(aksiTeks.includes("REJECT")) warnaAksi = "#dc2626"; // Merah
+                if(aksiTeks.includes("REVISI")) warnaAksi = "#d97706"; // Oranye
+
+                return `<tr>
+                    <td style="font-size:12px; font-weight:700; color:#334155; line-height:1.4;">${row[1]}</td>
+                    <td style="font-size:11px; font-weight:800; color:${warnaAksi}; line-height:1.4;">${aksiTeks}</td>
+                    <td style="width: 80px;">
+                        <button class="btn-detail-history" onclick="bukaModalDetailLog(${index})">
+                            <i class="fas fa-eye"></i> Detail
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
+        } else {
+            body.innerHTML = "<tr><td colspan='3'>Belum ada log aktivitas.</td></tr>";
+        }
+        
+    } catch(err) {
+        body.innerHTML = "<tr><td colspan='3'>Gagal memuat log.</td></tr>";
+    }
+}
+
+// FUNGSI BARU UNTUK BUKA MODAL LOG
+function bukaModalDetailLog(index) {
+    const row = dataLogSementara[index];
+    if (!row) return;
+    
+    // Format Waktu agar lebih estetik
+    const waktuTeks = new Date(row[0]).toLocaleString('id-ID', { 
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' 
+    });
+
+    // Mengisi ID di Modal
+    document.getElementById("detLogWaktu").innerText = waktuTeks + " WIB";
+    document.getElementById("detLogPelaku").innerText = row[1] || "-";
+    document.getElementById("detLogAksi").innerText = row[2] || "-";
+    document.getElementById("detLogNip").innerText = row[3] || "-";
+    
+    // Tampilkan Modal
+    document.getElementById("modalDetailLog").style.display = "flex";
+}
+
+// FUNGSI BARU UNTUK TUTUP MODAL LOG
+function tutupModalDetailLog() {
+    document.getElementById("modalDetailLog").style.display = "none";
+}
+
+// --- VARIABEL KONTROL REKAN ---
+let jumlahRekan = 0; // Untuk batas maksimal 2 rekan
+let idCounter = 0;   // Untuk mencegah ID bentrok jika rekan dihapus/tambah
+
+function tambahRekanUI() {
+    if (jumlahRekan >= 2) {
+        alert("⚠️ Maksimal hanya dapat menambahkan 2 rekan lembur (Total 3 orang dalam 1 Tim).");
+        return;
+    }
+    
+    jumlahRekan++;
+    idCounter++; 
+    const container = document.getElementById("listRekanLembur");
+    const idRekan = idCounter; 
+    
+    const rekanHTML = `
+        <div class="personel-item" id="boxRekan_${idRekan}" style="background: #ffffff; padding: 15px; border-radius: 10px; border: 1px dashed #2563eb; margin-bottom: 15px; position: relative; animation: containerAppear 0.3s ease;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 11px; font-weight: 800; color: #1d4ed8;"><i class="fas fa-user-plus"></i> REKAN TIM</span>
+                <button type="button" onclick="hapusRekanUI(${idRekan})" style="background: transparent; color: #ef4444; border: none; cursor: pointer; font-size: 12px; font-weight: bold; width: auto!important; padding: 0;"><i class="fas fa-trash-alt"></i> Hapus</button>
+            </div>
+            
+            <div class="form-group-premium" style="position: relative; margin-bottom: 10px;">
+                <label style="font-size: 9px; color: #64748b;">CARI NAMA / NIP REKAN</label>
+                <input type="text" id="searchRekanInput_${idRekan}" class="premium-input" placeholder="Ketik nama atau NIP..." onkeyup="searchRekanKolektif(${idRekan})" style="padding: 10px 12px;">
+                <input type="hidden" id="rekanNip_${idRekan}">
+                <input type="hidden" id="rekanNama_${idRekan}">
+                <div id="resultsRekanList_${idRekan}" style="position: absolute; width: 100%; margin-top: 5px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-height: 120px; overflow-y: auto; display: none; z-index: 1000;"></div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <!-- TAMBAHAN: onchange="koreksiJamRekan" disisipkan di sini -->
+                <div><label style="font-size:10px; font-weight:700; color:#64748b;">JAM MASUK</label><input type="time" id="rekanMasuk_${idRekan}" class="premium-input" style="padding: 10px!important;" onchange="koreksiJamRekan(${idRekan})"></div>
+                <div><label style="font-size:10px; font-weight:700; color:#64748b;">JAM KELUAR</label><input type="time" id="rekanKeluar_${idRekan}" class="premium-input" style="padding: 10px!important;" onchange="koreksiJamRekan(${idRekan})"></div>
+            </div>
+
+            <div class="form-group-premium" style="margin-bottom: 0;">
+                <label style="font-size:10px; font-weight:700; color:#64748b;">JADWAL REKAN (TERENCANA?)</label>
+                <select id="rekanJadwal_${idRekan}" class="premium-input" style="padding: 10px!important;">
+                    <option value="IYA">IYA (Terjadwal)</option>
+                    <option value="TIDAK">TIDAK (Tidak Terjadwal)</option>
+                </select>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', rekanHTML);
+}
+
+// ==========================================
+// FUNGSI BARU: AUTO-KOREKSI JAM REKAN
+// ==========================================
+function koreksiJamRekan(id) {
+    let masukEl = document.getElementById(`rekanMasuk_${id}`);
+    let keluarEl = document.getElementById(`rekanKeluar_${id}`);
+    
+    // Perbaiki jam secara langsung di kolom rekan saat mereka mengetik
+    if (masukEl && masukEl.value) {
+        masukEl.value = bulatkanWaktu(masukEl.value);
+    }
+    if (keluarEl && keluarEl.value) {
+        keluarEl.value = bulatkanWaktu(keluarEl.value);
+    }
+}
+
+function hapusRekanUI(id) {
+    const element = document.getElementById(`boxRekan_${id}`);
+    if (element) {
+        element.remove();
+        jumlahRekan--;
+    }
+}
+
+function searchRekanKolektif(id) {
+    const query = document.getElementById(`searchRekanInput_${id}`).value.toLowerCase();
+    const list = document.getElementById(`resultsRekanList_${id}`);
+    list.innerHTML = "";
+    
+    if (query.length < 2) { list.style.display = "none"; return; }
+
+    const filtered = dataSeluruhPegawai.filter(p => p.nama.toLowerCase().includes(query) || String(p.nip).toLowerCase().includes(query));
+    
+    if (filtered.length > 0) {
+        list.style.display = "block";
+        filtered.forEach(p => {
+            if (String(p.nip).trim() === String(usernameLogin).trim()) return; // Hindari pilih diri sendiri
+            list.innerHTML += `
+                <div class="result-item" onmousedown="pilihRekanKolektif(${id}, '${p.nip}', '${p.nama}')" style="padding: 8px 12px; font-size: 12px;">
+                    <div style="font-weight: 700;">${p.nama}</div><div style="color: #64748b; font-size: 10px;">${p.nip}</div>
+                </div>`;
+        });
+    } else {
+        list.style.display = "block";
+        list.innerHTML = `<div style="color: #94a3b8; padding: 8px 12px; font-size: 12px;">Pegawai tidak ditemukan.</div>`;
+    }
+}
+
+function pilihRekanKolektif(id, nip, nama) {
+    document.getElementById(`searchRekanInput_${id}`).value = `${nama} (${nip})`;
+    document.getElementById(`rekanNip_${id}`).value = nip;
+    document.getElementById(`rekanNama_${id}`).value = nama;
+    document.getElementById(`resultsRekanList_${id}`).style.display = "none";
+}
+
+// --- FUNGSI KALKULATOR JAM INTERNAL ---
+function kalkulasiJamInternal(masuk, keluar, kategori, jenis) {
+    const [h1, m1] = masuk.split(':').map(Number);
+    const [h2, m2] = keluar.split(':').map(Number);
+    let diff = (h2 * 60 + m2) - (h1 * 60 + m1);
+    if (diff < 0) diff += 24 * 60;
+    
+    const totalJam = diff / 60;
+    const istirahat = Math.floor(totalJam / 5);
+    const jamEfektif = totalJam - istirahat;
+    
+    let x15 = 0, x2 = 0, x3 = 0, x4 = 0;
+    if (kategori === "HARI BIASA") {
+        x15 = Math.min(jamEfektif, 1);
+        x2 = Math.max(0, jamEfektif - 1);
+    } else if (kategori === "HARI LIBUR") {
+        x2 = (jenis === "ADMIN/HAR") ? Math.min(jamEfektif, 8) : Math.min(jamEfektif, 7);
+        x3 = jamEfektif >= 9 ? 1 : 0;
+    }
+    x4 = Math.max(0, jamEfektif - (x15 + x2 + x3));
+    
+    return {
+        total_kerja: totalJam, total_efektif: jamEfektif, istirahat: istirahat,
+        x15: x15, x2: x2, x3: x3, x4: x4
+    };
+}
+
+// --- FUNGSI SUBMIT ROMBONGAN KE BACKEND ---
+async function submitDataKolektif() {
+    const tanggal = document.getElementById("tanggal").value;
+    const kategori = document.getElementById("kategori_lembur").value;
+    const jenis = document.getElementById("jenis_lembur").value;
+    const deskripsi = document.getElementById("deskripsi").value.trim();
+    
+    if (!tanggal || deskripsi === "") {
+        alert("⚠️ Lengkapi Tanggal and Deskripsi Pekerjaan!"); return;
+    }
+
+    let mPembuat = document.getElementById("jam_masuk").value;
+    let kPembuat = document.getElementById("jam_keluar").value;
+    
+    mPembuat = bulatkanWaktu(mPembuat);
+    kPembuat = bulatkanWaktu(kPembuat);
+    document.getElementById("jam_masuk").value = mPembuat;
+    document.getElementById("jam_keluar").value = kPembuat;
+    
+    if (mPembuat && kPembuat && mPembuat === kPembuat) {
+        alert("⚠️ Jam Masuk dan Jam Keluar Anda (Pembuat) tidak boleh sama!");
+        return;
+    }
+
+    const btn = document.querySelector(".btn-submit-premium");
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES TIM...';
+
+    try {
+        let dataPeserta = [];
+
+        // 1. Data Pembuat (Personel 1)
+        const nip1 = document.getElementById("form_nip").value;
+        const masuk1 = mPembuat;
+        const keluar1 = kPembuat;
+        const jadwal1 = document.getElementById("jadwal_lembur").value;
+        
+        if (!masuk1 || !keluar1) throw new Error("Jam Masuk/Keluar Anda (Pembuat) wajib diisi!");
+        
+        const calc1 = kalkulasiJamInternal(masuk1, keluar1, kategori, jenis);
+        dataPeserta.push({ nip: nip1, nama: document.getElementById("form_nama").value, jam_masuk: masuk1, jam_keluar: keluar1, jadwal: jadwal1, ...calc1 });
+
+        // 2. Data Rekan-rekan
+        const hiddenNips = document.querySelectorAll("input[id^='rekanNip_']");
+        for (let i = 0; i < hiddenNips.length; i++) {
+            let id = hiddenNips[i].id.split('_')[1];
+            let nipRek = document.getElementById(`rekanNip_${id}`).value;
+            let namaRek = document.getElementById(`rekanNama_${id}`).value;
+            let masukRek = document.getElementById(`rekanMasuk_${id}`).value;
+            let keluarRek = document.getElementById(`rekanKeluar_${id}`).value;
+            let jadwalRek = document.getElementById(`rekanJadwal_${id}`).value; 
+            
+            if (nipRek === "") throw new Error(`Anda menambahkan kotak rekan, tapi belum memilih orangnya.`);
+            if (!masukRek || !keluarRek) throw new Error(`Jam Masuk/Keluar untuk ${namaRek} wajib diisi!`);
+            
+            masukRek = bulatkanWaktu(masukRek);
+            keluarRek = bulatkanWaktu(keluarRek);
+            document.getElementById(`rekanMasuk_${id}`).value = masukRek;
+            document.getElementById(`rekanKeluar_${id}`).value = keluarRek;
+
+            if (masukRek === keluarRek) throw new Error(`Jam Masuk dan Jam Keluar untuk ${namaRek} tidak boleh sama!`);
+            if (dataPeserta.find(p => p.nip === nipRek)) throw new Error(`Pegawai ${namaRek} terinput dua kali!`);
+
+            const calcRek = kalkulasiJamInternal(masukRek, keluarRek, kategori, jenis);
+            dataPeserta.push({ nip: nipRek, nama: namaRek, jam_masuk: masukRek, jam_keluar: keluarRek, jadwal: jadwalRek, ...calcRek });
+        }
+
+        // 3. Pengecekan Kuota Massal & Proteksi Akumulasi > 60 Jam (Mencegah submit gabungan)
+        for (let i = 0; i < dataPeserta.length; i++) {
+            // A. Cek Kuota Harian (Double Input)
+            const respQuota = await fetch(`${SCRIPT_URL}?action=checkQuota&nip=${encodeURIComponent(dataPeserta[i].nip)}&tanggal=${encodeURIComponent(tanggal)}`);
+            const cekQuota = await respQuota.json();
+            if (!cekQuota.valid) throw new Error(`Gagal pada ${dataPeserta[i].nama}: ${cekQuota.message}`);
+
+            // B. Cek Akumulasi Batas Kritis 60 Jam
+            const respLimit = await fetch(`${SCRIPT_URL}?action=checkHoursLimit&nama=${encodeURIComponent(dataPeserta[i].nama)}&jamEfektif=${dataPeserta[i].total_efektif}`);
+            const cekLimit = await respLimit.json();
+            
+            if (!cekLimit.valid) {
+                if (cekLimit.message === "sudah_lebih") {
+                    throw new Error(`🚫 PENGAJUAN TIM DIBATALKAN\n\nPegawai atas nama: ${dataPeserta[i].nama} (${dataPeserta[i].nip}) terdeteksi SUDAH MELEBIHI 60 JAM akumulasi lembur pada siklus bulan ini.\n(Total Saat Ini: ${formatAngka(cekLimit.total)} Jam).\n\nSesuai aturan rekapitulasi, silakan keluarkan pegawai tersebut dari tim/rombongan ini, lalu arahkan dia untuk melakukan PROSES PENGAJUAN TUNGGAL/SENDIRI agar data pembayarannya terpisah.`);
+                } else if (cekLimit.message === "akan_lebih") {
+                    throw new Error(`🚫 PENGAJUAN TIM DIBATALKAN\n\nPegawai atas nama: ${dataPeserta[i].nama} (${dataPeserta[i].nip}) terdeteksi AKAN MELEBIHI 60 JAM jika pengajuan tim ini diteruskan.\n(Total Saat Ini: ${formatAngka(cekLimit.total)} Jam + Pengajuan Baru: ${formatAngka(dataPeserta[i].total_efektif)} Jam = ${formatAngka(cekLimit.prediksi)} Jam).\n\nSesuai aturan rekapitulasi, silakan keluarkan pegawai tersebut dari tim/rombongan ini, lalu arahkan dia untuk melakukan PROSES PENGAJUAN TUNGGAL/SENDIRI agar data pembayarannya terpisah.`);
+                }
+            }
+        }
+
+        // 4. Kirim Paket Kolektif ke Server jika lolos semua validasi
+        const payload = {
+            action: "submitKolektif",
+            tanggal: tanggal, kategori: kategori, jenis: jenis,
+            status_pekerjaan: document.getElementById("status_pekerjaan").value,
+            deskripsi: deskripsi,
+            kode_unit: localStorage.getItem("kodeUnit") || "PNS",
+            submitter: usernameLogin,
+            peserta: dataPeserta
+        };
+
+        const response = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+        const result = await response.json();
+        
+        if (result.status !== "success") throw new Error(result.message);
+
+        hideSemuaSection();
+        document.getElementById("successMessage").style.display = "block";
+        document.getElementById("backButton").style.display = "block";
+        
+        document.getElementById("listRekanLembur").innerHTML = "";
+        jumlahRekan = 0; idCounter = 0;
+        document.getElementById("deskripsi").value = "";
+        document.getElementById("jam_masuk").value = "";
+        document.getElementById("jam_keluar").value = "";
+        
+        // --- TAMBAHKAN POP-UP ALERT DI SINI ---
+        alert("✅ Form berhasil disimpan ke sistem!\n\n⚠️ PENTING: Pengajuan Anda BELUM terkirim ke Admin.\nSistem akan mengarahkan Anda ke menu Riwayat. Silakan klik 'Detail' lalu pilih 'Cetak SPKL' agar pengajuan Anda dapat diproses.");
+        
+        loadRiwayat();
+
+    } catch (err) {
+        alert(err.message);
+    } finally {
+        btn.disabled = false; btn.innerHTML = `<i class="fas fa-paper-plane"></i> KIRIM PENGAJUAN TIM`;
+    }
+}
+
+// Fungsi untuk memanggil pop-up update
 async function validasiUpdateSistem() {
     try {
         const url = `${SCRIPT_URL}?action=checkVersion&t=${new Date().getTime()}`;
         const response = await fetch(url);
         
         if (!response.ok) return; 
-        
         const result = await response.json();
         
-        if (result.version && result.version !== LOKAL_VERSION) {
-            alert("⚠️ Pembaruan Sistem!\n\nRumus atau fitur baru telah ditambahkan. Sistem akan dimuat ulang untuk menerapkan pembaruan.");
-            window.location.reload(true);
+        // Cek versi yang tersimpan di memori HP pegawai (default 1.0.0 jika baru pertama kali)
+        const savedVersion = localStorage.getItem("appVersionSaved") || "1.0.0";
+        
+        // Jika ada versi baru yang lebih tinggi dari yang tersimpan di memori
+        if (result.version && result.version !== savedVersion) {
+            
+            // Masukkan teks dan versi ke dalam Pop-up
+            document.getElementById("updateVersionNum").innerText = result.version;
+            document.getElementById("updateNotesContent").innerHTML = result.notes || "Sistem telah diperbarui untuk meningkatkan performa.";
+            
+            // Tampilkan Pop-up
+            document.getElementById("modalUpdateSystem").style.display = "flex";
+            
+            // Simpan versi baru ke memori agar pop-up tidak muncul berulang-ulang
+            localStorage.setItem("appVersionSaved", result.version);
         }
     } catch (err) {
         console.log("Cek versi gagal: ", err);
     }
 }
+
+function tutupModalUpdateSystem() {
+    document.getElementById("modalUpdateSystem").style.display = "none";
+}
+
+function populatePeriodeHistory() {
+    const select = document.getElementById("filterPeriodeHistory");
+    if (select.options.length > 0) return;
+    
+    const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    const sekarang = new Date();
+    let tahun = sekarang.getFullYear();
+    let bulan = sekarang.getMonth();
+    let hari = sekarang.getDate();
+    
+    // Mulai dari siklus aktif (saat ini)
+    let baseBulanStart = (hari >= 11) ? bulan : bulan - 1;
+    
+    for(let i = 0; i < 3; i++) { // Mengambil 3 siklus terakhir saja agar tidak kepanjangan
+        let targetBulan = baseBulanStart - i;
+        let tglEnd = new Date(tahun, targetBulan + 1, 10);
+        let labelBulan = namaBulan[tglEnd.getMonth()] + " " + tglEnd.getFullYear();
+        
+        // Menambahkan opsi per Tahap
+        select.innerHTML += `<option value="${i}_1">Siklus ${labelBulan} - Tahap 1 (11-${tglEnd.getMonth() === 0 ? 12 : tglEnd.getMonth()} s/d 30-${namaBulan[tglEnd.getMonth()-1]})</option>`;
+        select.innerHTML += `<option value="${i}_2">Siklus ${labelBulan} - Tahap 2 (01-${tglEnd.getMonth()+1} s/d 10-${namaBulan[tglEnd.getMonth()]})</option>`;
+    }
+}
+
+function bulatkanWaktu(waktuStr) {
+    if (!waktuStr) return "";
+    let [jam, menit] = waktuStr.split(':').map(Number);
+    
+    if (menit >= 1 && menit <= 15) {
+        menit = 0;
+    } else if (menit >= 16 && menit <= 45) {
+        menit = 30;
+    } else if (menit >= 46 && menit <= 59) {
+        menit = 0;
+        jam = (jam + 1) % 24;
+    }
+    
+    return String(jam).padStart(2, '0') + ":" + String(menit).padStart(2, '0');
+}
+
+function populatePeriodeRiwayatUser() {
+    const select = document.getElementById("filterPeriodeRiwayatUser");
+    if (!select || select.options.length > 0) return; // Proteksi: Mencegah duplikasi isi opsi bulan jika sudah di-load
+    
+    const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    const sekarang = new Date();
+    let tahun = sekarang.getFullYear();
+    let bulan = sekarang.getMonth();
+    let hari = sekarang.getDate();
+    
+    let baseBulanStart = (hari >= 11) ? bulan : bulan - 1;
+    
+    // Memunculkan opsi 6 siklus penggajian terakhir bagi user
+    for(let i = 0; i < 6; i++) { 
+        let targetBulan = baseBulanStart - i;
+        let tglEnd = new Date(tahun, targetBulan + 1, 10); // Tanggal 10 sebagai penentu patokan nama bulan penggajian
+        let labelBulan = namaBulan[tglEnd.getMonth()] + " " + tglEnd.getFullYear();
+        let label = (i === 0) ? `Aktif (Penggajian ${labelBulan})` : `Penggajian ${labelBulan}`;
+        
+        select.innerHTML += `<option value="${i}">${label}</option>`;
+    }
+}
+
+window.showUserInbox = function() {
+    hideSemuaSection();
+    document.getElementById("backButton").style.display = "block";
+    document.getElementById("userInboxSection").style.display = "block";
+    currentView = 'userInboxSection';
+    loadUserInbox();
+};
+
+async function loadUserInbox() {
+    const body = document.getElementById("userInboxBody");
+    body.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Mengambil data log Anda...</td></tr>"; 
+    
+    try {
+        const nipFix = usernameLogin || localStorage.getItem("usernameLogin");
+        // Panggil endpoint baru di backend
+        const response = await fetch(`${SCRIPT_URL}?action=getLogUser&nip=${encodeURIComponent(nipFix)}&username=${encodeURIComponent(namaUser)}&kode_unit=${localStorage.getItem("kodeUnit")}`);
+        const data = await response.json();
+        
+        if(data.length > 0) {
+            body.innerHTML = data.map((row) => {
+                const waktuTeks = new Date(row[0]).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+                let aksiTeks = String(row[2]).toUpperCase() || '-';
+                let warnaAksi = "#0284c7"; // Default Biru
+                
+                if(aksiTeks.includes("APPROVE")) warnaAksi = "#16a34a"; // Hijau
+                if(aksiTeks.includes("REJECT")) warnaAksi = "#dc2626"; // Merah
+                if(aksiTeks.includes("REVISI")) warnaAksi = "#d97706"; // Oranye
+                if(aksiTeks.includes("SUBMIT")) warnaAksi = "#4f46e5"; // Indigo
+                
+                return `<tr>
+                    <td style="font-size:11px; color:#64748b;">${waktuTeks}</td>
+                    <td style="font-size:11px; font-weight:800; color:${warnaAksi};">${aksiTeks}</td>
+                    <td style="font-size:12px; font-weight:600; color:#334155; line-height:1.4;">${row[4] || '-'}</td>
+                </tr>`;
+            }).join('');
+        } else {
+            body.innerHTML = "<tr><td colspan='3' style='text-align:center;'>Belum ada aktivitas log yang tercatat.</td></tr>";
+        }
+    } catch(err) {
+        body.innerHTML = "<tr><td colspan='3' style='text-align:center; color:red;'>Gagal memuat log kotak masuk.</td></tr>";
+    }
+}
+
+let barisCetakAktif = null; // Menyimpan ID baris yang sedang dipilih
+
+// 1. Fungsi dipanggil saat tombol "Cetak" di tabel diklik
+function bukaModalCetak(row) {
+    barisCetakAktif = row;
+    document.getElementById("modalCetakPilihan").style.display = "flex";
+}
+
+// 2. Fungsi untuk menutup modal
+// 2. Fungsi untuk menutup modal
+function tutupModalCetak() {
+    document.getElementById("modalCetakPilihan").style.display = "none";
+    barisCetakAktif = null;
+    
+    // Kembalikan tombol OPSI ke state awal jika sebelumnya error/loading
+    document.getElementById("btnOpsiSPKL").innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <i class="fas fa-file-signature" style="color: #3b82f6; font-size: 20px;"></i>
+            <div style="text-align: left;">
+                <div style="font-size: 14px; font-weight: 800; color: #1e293b;">Dokumen SPKL</div>
+                <div style="font-size: 10px; color: #64748b;">Surat Perintah Kerja Lembur Formal</div>
+            </div>
+        </div>
+        <i class="fas fa-download" style="color: #94a3b8;"></i>
+    `;
+    document.getElementById("btnOpsiDeskripsi").innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <i class="fas fa-file-alt" style="color: #10b981; font-size: 20px;"></i>
+            <div style="text-align: left;">
+                <div style="font-size: 14px; font-weight: 800; color: #1e293b;">Uraian Deskripsi</div>
+                <div style="font-size: 10px; color: #64748b;">Laporan Detail Pekerjaan Lembur</div>
+            </div>
+        </div>
+        <i class="fas fa-download" style="color: #94a3b8;"></i>
+    `;
+    
+    document.getElementById("btnOpsiSPKL").disabled = false;
+    document.getElementById("btnOpsiDeskripsi").disabled = false;
+}
+
+// 3. Fungsi Eksekutor Pemanggil Backend
+async function eksekusiCetak(jenisDokumen) {
+    if (!barisCetakAktif) return;
+    
+    // Targetkan ke ID Opsi yang baru
+    const btnTarget = jenisDokumen === 'SPKL' ? document.getElementById("btnOpsiSPKL") : document.getElementById("btnOpsiDeskripsi");
+    const warnaLoad = jenisDokumen === 'SPKL' ? '#3b82f6' : '#10b981';
+    
+    document.getElementById("btnOpsiSPKL").disabled = true;
+    document.getElementById("btnOpsiDeskripsi").disabled = true;
+    
+    btnTarget.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px; width: 100%; justify-content: center; color: ${warnaLoad};">
+            <i class="fas fa-spinner fa-spin" style="font-size: 18px;"></i>
+            <span style="font-size: 14px; font-weight: 800;">Sedang Membuat PDF...</span>
+        </div>
+    `;
+
+    try {
+        const response = await fetch(`${SCRIPT_URL}?action=cetakDokumen&row=${barisCetakAktif}&jenis=${jenisDokumen}&user=${encodeURIComponent(namaUser)}`);
+        const result = await response.json();
+        
+        if (result.status === "success") {
+            // Update status cetak SPKL di detail jika yang dicetak adalah SPKL
+            if(jenisDokumen === 'SPKL' && barisTerpilih) barisTerpilih.no_spkl = result.spkl; 
+            
+            window.open(result.url, '_blank');
+            tutupModalCetak();
+            tutupModalDetail(); // Tutup juga modal detail setelah tab baru PDF terbuka
+        } else {
+            alert("❌ Gagal mencetak dokumen: " + (result.message || "Kesalahan server."));
+            tutupModalCetak();
+        }
+    } catch (err) {
+        alert("🚨 Gagal terhubung ke server. Pastikan internet stabil.");
+        tutupModalCetak();
+    }
+}
 </script>
-</body>
+
+  <? } ?> </body>
 </html>
