@@ -967,7 +967,7 @@ input:focus + .input-icon {
         <button class="btn-refresh-premium" onclick="loadRiwayat60()" title="Perbarui Data"><i class="fas fa-sync-alt"></i></button>
     </div>
 
-    <!-- TAMBAHKAN BAGIAN INI -->
+    <!-- INI YANG BARU DITAMBAHKAN -->
     <div style="display: flex; gap: 8px; margin-bottom: 15px;">
         <input type="text" id="searchLembur60" class="search-input" style="margin-bottom: 0; flex: 1;" placeholder="🔍 Cari..." onkeyup="filterTabel('riwayatBody60', 'searchLembur60')">
         <select id="filterPeriodeLembur60" onchange="loadRiwayat60()" class="premium-input" style="width: auto; padding: 12px 10px !important;"></select>
@@ -988,7 +988,7 @@ input:focus + .input-icon {
     </div>
 </div>
 
-    <div id="terjadwalSection" style="display:none; margin-top: 20px;">
+  <div id="terjadwalSection" style="display:none; margin-top: 20px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <div style="display: flex; align-items: center; gap: 12px;">
             <div class="menu-icon-wrapper theme-blue" style="width: 42px; height: 42px; font-size: 18px;"><i class="fas fa-calendar-check"></i></div>
@@ -997,7 +997,7 @@ input:focus + .input-icon {
         <button class="btn-refresh-premium" onclick="loadTerjadwal()" title="Perbarui Data"><i class="fas fa-sync-alt"></i></button>
     </div>
     
-    <!-- UBAH BAGIAN INI -->
+    <!-- INI YANG BARU DITAMBAHKAN -->
     <div style="display: flex; gap: 8px; margin-bottom: 15px;">
         <input type="text" id="searchTerjadwal" class="search-input" style="margin-bottom: 0; flex: 1;" placeholder="🔍 Cari..." onkeyup="filterTabel('terjadwalBody', 'searchTerjadwal')">
         <select id="filterPeriodeTerjadwal" onchange="loadTerjadwal()" class="premium-input" style="width: auto; padding: 12px 10px !important;"></select>
@@ -1022,7 +1022,7 @@ input:focus + .input-icon {
         <button class="btn-refresh-premium" onclick="loadTidakTerjadwal()" title="Perbarui Data"><i class="fas fa-sync-alt"></i></button>
     </div>
     
-    <!-- UBAH BAGIAN INI -->
+    <!-- INI YANG BARU DITAMBAHKAN -->
     <div style="display: flex; gap: 8px; margin-bottom: 15px;">
         <input type="text" id="searchTidakTerjadwal" class="search-input" style="margin-bottom: 0; flex: 1;" placeholder="🔍 Cari..." onkeyup="filterTabel('tidakTerjadwalBody', 'searchTidakTerjadwal')">
         <select id="filterPeriodeTidakTerjadwal" onchange="loadTidakTerjadwal()" class="premium-input" style="width: auto; padding: 12px 10px !important;"></select>
@@ -2645,30 +2645,30 @@ async function kirimReject() {
     };
 
     window.showLembur60 = function() { 
-        hideSemuaSection(); 
-        document.getElementById("backButton").style.display = "block"; 
-        document.getElementById("lembur60Section").style.display = "block"; 
-        currentView = 'lembur60Section'; 
-        populatePeriode3Bulan("filterPeriodeLembur60"); // <-- TAMBAHAN
-        loadRiwayat60(); 
+    hideSemuaSection(); 
+    document.getElementById("backButton").style.display = "block"; 
+    document.getElementById("lembur60Section").style.display = "block"; 
+    currentView = 'lembur60Section'; 
+    populatePeriode3Bulan("filterPeriodeLembur60"); // <-- TAMBAHAN BARU
+    loadRiwayat60(); 
     };
 
     window.showTerjadwal = function() { 
-        hideSemuaSection(); 
-        document.getElementById("backButton").style.display = "block"; 
-        document.getElementById("terjadwalSection").style.display = "block"; 
-        currentView = 'terjadwalSection'; 
-        populatePeriode3Bulan("filterPeriodeTerjadwal"); // <-- TAMBAHAN
-        loadTerjadwal(); 
+    hideSemuaSection(); 
+    document.getElementById("backButton").style.display = "block"; 
+    document.getElementById("terjadwalSection").style.display = "block"; 
+    currentView = 'terjadwalSection'; 
+    populatePeriode3Bulan("filterPeriodeTerjadwal"); // <-- TAMBAHAN BARU
+    loadTerjadwal(); 
     };
 
     window.showTidakTerjadwal = function() { 
-        hideSemuaSection(); 
-        document.getElementById("backButton").style.display = "block"; 
-        document.getElementById("tidakTerjadwalSection").style.display = "block"; 
-        currentView = 'tidakTerjadwalSection'; 
-        populatePeriode3Bulan("filterPeriodeTidakTerjadwal"); // <-- TAMBAHAN
-        loadTidakTerjadwal(); 
+    hideSemuaSection(); 
+    document.getElementById("backButton").style.display = "block"; 
+    document.getElementById("tidakTerjadwalSection").style.display = "block"; 
+    currentView = 'tidakTerjadwalSection'; 
+    populatePeriode3Bulan("filterPeriodeTidakTerjadwal"); // <-- TAMBAHAN BARU
+    loadTidakTerjadwal(); 
     };
   });
 
@@ -3743,6 +3743,25 @@ function bulatkanWaktu(waktuStr) {
     return String(jam).padStart(2, '0') + ":" + String(menit).padStart(2, '0');
 }
 
+// PASTIKAN FUNGSI INI ADA (Jangan sampai terhapus)
+function populatePeriodeRiwayatUser() {
+    const select = document.getElementById("filterPeriodeRiwayatUser");
+    if (!select || select.options.length > 0) return;
+    
+    const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    const sekarang = new Date();
+    let hari = sekarang.getDate();
+    let baseBulanStart = (hari >= 11) ? sekarang.getMonth() : sekarang.getMonth() - 1;
+    
+    for(let i = 0; i < 6; i++) { 
+        let d = new Date(sekarang.getFullYear(), baseBulanStart - i + 1, 10);
+        let labelBulan = namaBulan[d.getMonth()] + " " + d.getFullYear();
+        let label = (i === 0) ? `Aktif (Penggajian ${labelBulan})` : `Penggajian ${labelBulan}`;
+        
+        select.innerHTML += `<option value="${i}">${label}</option>`;
+    }
+}
+
 function populatePeriode3Bulan(selectId) {
     const select = document.getElementById(selectId);
     if (!select || select.options.length > 0) return;
@@ -3752,11 +3771,11 @@ function populatePeriode3Bulan(selectId) {
     let hari = sekarang.getDate();
     let baseBulanStart = (hari >= 11) ? sekarang.getMonth() : sekarang.getMonth() - 1;
     
-    // Hanya memutar 3 kali (Bulan berjalan + 2 bulan sebelumnya)
+    // Memutar 3 kali untuk 3 bulan terakhir
     for(let i = 0; i < 3; i++) { 
         let d = new Date(sekarang.getFullYear(), baseBulanStart - i + 1, 10);
         let labelBulan = namaBulan[d.getMonth()] + " " + d.getFullYear();
-        let label = (i === 0) ? `Aktif (Penggajian ${labelBulan})` : `Penggajian ${labelBulan}`;
+        let label = (i === 0) ? `Aktif (${labelBulan})` : `${labelBulan}`;
         
         select.innerHTML += `<option value="${i}">${label}</option>`;
     }
