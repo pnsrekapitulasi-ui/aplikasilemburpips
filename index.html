@@ -967,6 +967,12 @@ input:focus + .input-icon {
         <button class="btn-refresh-premium" onclick="loadRiwayat60()" title="Perbarui Data"><i class="fas fa-sync-alt"></i></button>
     </div>
 
+    <!-- TAMBAHKAN BAGIAN INI -->
+    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+        <input type="text" id="searchLembur60" class="search-input" style="margin-bottom: 0; flex: 1;" placeholder="🔍 Cari..." onkeyup="filterTabel('riwayatBody60', 'searchLembur60')">
+        <select id="filterPeriodeLembur60" onchange="loadRiwayat60()" class="premium-input" style="width: auto; padding: 12px 10px !important;"></select>
+    </div>
+
     <div class="admin-table-scroll">
         <table>
             <thead>
@@ -990,7 +996,13 @@ input:focus + .input-icon {
         </div>
         <button class="btn-refresh-premium" onclick="loadTerjadwal()" title="Perbarui Data"><i class="fas fa-sync-alt"></i></button>
     </div>
-    <input type="text" id="searchTerjadwal" class="search-input" placeholder="🔍 Cari..." onkeyup="filterTabel('terjadwalBody', 'searchTerjadwal')">
+    
+    <!-- UBAH BAGIAN INI -->
+    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+        <input type="text" id="searchTerjadwal" class="search-input" style="margin-bottom: 0; flex: 1;" placeholder="🔍 Cari..." onkeyup="filterTabel('terjadwalBody', 'searchTerjadwal')">
+        <select id="filterPeriodeTerjadwal" onchange="loadTerjadwal()" class="premium-input" style="width: auto; padding: 12px 10px !important;"></select>
+    </div>
+
     <div class="admin-table-scroll">
         <table>
             <thead>
@@ -1009,7 +1021,13 @@ input:focus + .input-icon {
         </div>
         <button class="btn-refresh-premium" onclick="loadTidakTerjadwal()" title="Perbarui Data"><i class="fas fa-sync-alt"></i></button>
     </div>
-    <input type="text" id="searchTidakTerjadwal" class="search-input" placeholder="🔍 Cari..." onkeyup="filterTabel('tidakTerjadwalBody', 'searchTidakTerjadwal')">
+    
+    <!-- UBAH BAGIAN INI -->
+    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+        <input type="text" id="searchTidakTerjadwal" class="search-input" style="margin-bottom: 0; flex: 1;" placeholder="🔍 Cari..." onkeyup="filterTabel('tidakTerjadwalBody', 'searchTidakTerjadwal')">
+        <select id="filterPeriodeTidakTerjadwal" onchange="loadTidakTerjadwal()" class="premium-input" style="width: auto; padding: 12px 10px !important;"></select>
+    </div>
+
     <div class="admin-table-scroll">
         <table>
             <thead>
@@ -1965,10 +1983,12 @@ async function loadRiwayat() {
     const body = document.getElementById("riwayatBody60"); 
     body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Memuat data...</td></tr>";
     
+    const offset = document.getElementById("filterPeriodeLembur60") ? document.getElementById("filterPeriodeLembur60").value : 0;
+    
     try { 
-        // Ganti baris fetch lama dengan ini:
-        const response = await fetch(`${SCRIPT_URL}?action=riwayat60&nama=${encodeURIComponent(namaUser)}&kode_unit=${localStorage.getItem("kodeUnit")}`); 
-        const result = await response.json(); 
+        // Tambahkan &offset=${offset} di akhir
+        const response = await fetch(`${SCRIPT_URL}?action=riwayat60&nama=${encodeURIComponent(namaUser)}&kode_unit=${localStorage.getItem("kodeUnit")}&offset=${offset}`); 
+        const result = await response.json();
         
         dataAdminSementara = result; 
         
@@ -1999,9 +2019,12 @@ async function loadRiwayat() {
   async function loadTerjadwal() {
     const body = document.getElementById("terjadwalBody");
     body.innerHTML = "<tr><td colspan='4'>Memuat data...</td></tr>";
+    
+    const offset = document.getElementById("filterPeriodeTerjadwal") ? document.getElementById("filterPeriodeTerjadwal").value : 0;
+    
     try {
-        // PERBAIKAN: Mengubah action=riwayat60 menjadi action=terjadwal
-        const response = await fetch(`${SCRIPT_URL}?action=terjadwal&nama=${encodeURIComponent(namaUser)}&kode_unit=${localStorage.getItem("kodeUnit")}`);
+        // Tambahkan &offset=${offset} di akhir
+        const response = await fetch(`${SCRIPT_URL}?action=terjadwal&nama=${encodeURIComponent(namaUser)}&kode_unit=${localStorage.getItem("kodeUnit")}&offset=${offset}`);
         const result = await response.json();
         dataAdminSementara = result; // Penting untuk tombol Detail
         let html = "";
@@ -2020,9 +2043,12 @@ async function loadRiwayat() {
 async function loadTidakTerjadwal() {
     const body = document.getElementById("tidakTerjadwalBody");
     body.innerHTML = "<tr><td colspan='4'>Memuat data...</td></tr>";
+    
+    const offset = document.getElementById("filterPeriodeTidakTerjadwal") ? document.getElementById("filterPeriodeTidakTerjadwal").value : 0;
+    
     try {
-        // Ganti baris fetch lama dengan ini:
-        const response = await fetch(`${SCRIPT_URL}?action=tidakTerjadwal&nama=${encodeURIComponent(namaUser)}&kode_unit=${localStorage.getItem("kodeUnit")}`);
+        // Tambahkan &offset=${offset} di akhir
+        const response = await fetch(`${SCRIPT_URL}?action=tidakTerjadwal&nama=${encodeURIComponent(namaUser)}&kode_unit=${localStorage.getItem("kodeUnit")}&offset=${offset}`);
         const result = await response.json();
         dataAdminSementara = result; // Penting untuk tombol Detail
         let html = "";
@@ -2618,24 +2644,32 @@ async function kirimReject() {
             .catch(e => console.error("Gagal update count:", e));
     };
 
-    window.showLembur60 = function() { hideSemuaSection(); document.getElementById("backButton").style.display = "block"; document.getElementById("lembur60Section").style.display = "block"; currentView = 'lembur60Section'; loadRiwayat60(); };
-    // Tambahkan baris currentView di setiap fungsi ini:
+    window.showLembur60 = function() { 
+        hideSemuaSection(); 
+        document.getElementById("backButton").style.display = "block"; 
+        document.getElementById("lembur60Section").style.display = "block"; 
+        currentView = 'lembur60Section'; 
+        populatePeriode3Bulan("filterPeriodeLembur60"); // <-- TAMBAHAN
+        loadRiwayat60(); 
+    };
 
-window.showTerjadwal = function() { 
-    hideSemuaSection(); 
-    document.getElementById("backButton").style.display = "block"; 
-    document.getElementById("terjadwalSection").style.display = "block"; 
-    currentView = 'terjadwalSection'; // <--- INI WAJIB
-    loadTerjadwal(); 
-};
+    window.showTerjadwal = function() { 
+        hideSemuaSection(); 
+        document.getElementById("backButton").style.display = "block"; 
+        document.getElementById("terjadwalSection").style.display = "block"; 
+        currentView = 'terjadwalSection'; 
+        populatePeriode3Bulan("filterPeriodeTerjadwal"); // <-- TAMBAHAN
+        loadTerjadwal(); 
+    };
 
-window.showTidakTerjadwal = function() { 
-    hideSemuaSection(); 
-    document.getElementById("backButton").style.display = "block"; 
-    document.getElementById("tidakTerjadwalSection").style.display = "block"; 
-    currentView = 'tidakTerjadwalSection'; // <--- INI WAJIB
-    loadTidakTerjadwal(); 
-};
+    window.showTidakTerjadwal = function() { 
+        hideSemuaSection(); 
+        document.getElementById("backButton").style.display = "block"; 
+        document.getElementById("tidakTerjadwalSection").style.display = "block"; 
+        currentView = 'tidakTerjadwalSection'; 
+        populatePeriode3Bulan("filterPeriodeTidakTerjadwal"); // <-- TAMBAHAN
+        loadTidakTerjadwal(); 
+    };
   });
 
 function kembaliMenu() {
@@ -3709,8 +3743,8 @@ function bulatkanWaktu(waktuStr) {
     return String(jam).padStart(2, '0') + ":" + String(menit).padStart(2, '0');
 }
 
-function populatePeriodeRiwayatUser() {
-    const select = document.getElementById("filterPeriodeRiwayatUser");
+function populatePeriode3Bulan(selectId) {
+    const select = document.getElementById(selectId);
     if (!select || select.options.length > 0) return;
     
     const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -3718,8 +3752,8 @@ function populatePeriodeRiwayatUser() {
     let hari = sekarang.getDate();
     let baseBulanStart = (hari >= 11) ? sekarang.getMonth() : sekarang.getMonth() - 1;
     
-    for(let i = 0; i < 6; i++) { 
-        // Ubah di sini: gunakan baseBulanStart + 1 agar labelnya bergeser ke bulan depan
+    // Hanya memutar 3 kali (Bulan berjalan + 2 bulan sebelumnya)
+    for(let i = 0; i < 3; i++) { 
         let d = new Date(sekarang.getFullYear(), baseBulanStart - i + 1, 10);
         let labelBulan = namaBulan[d.getMonth()] + " " + d.getFullYear();
         let label = (i === 0) ? `Aktif (Penggajian ${labelBulan})` : `Penggajian ${labelBulan}`;
