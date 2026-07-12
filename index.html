@@ -843,26 +843,43 @@ input:focus + .input-icon {
         
         <div class="form-group-premium"><label>NIP PEGAWAI (PEMBUAT)</label><input type="text" id="form_nip" class="premium-input read-only-input" readonly></div>
         <div class="form-group-premium"><label>NAMA PEGAWAI (PEMBUAT)</label><input type="text" id="form_nama" class="premium-input read-only-input" readonly></div>
-        <div class="form-group-premium"><label>TANGGAL LEMBUR (KOLEKTIF)</label><input type="date" id="tanggal" class="premium-input"></div>
+        
+        <!-- Tambahkan required di sini -->
+        <div class="form-group-premium"><label>TANGGAL LEMBUR (KOLEKTIF)</label><input type="date" id="tanggal" class="premium-input" required></div>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div class="form-group-premium"><label>JAM MASUK (PEMBUAT)</label><input type="time" id="jam_masuk" class="premium-input" onchange="hitungSemua()"></div>
-            <div class="form-group-premium"><label>JAM KELUAR (PEMBUAT)</label><input type="time" id="jam_keluar" class="premium-input" onchange="hitungSemua()"></div>
+            <!-- Tambahkan required di sini -->
+            <div class="form-group-premium"><label>JAM MASUK (PEMBUAT)</label><input type="time" id="jam_masuk" class="premium-input" onchange="hitungSemua()" required></div>
+            <div class="form-group-premium"><label>JAM KELUAR (PEMBUAT)</label><input type="time" id="jam_keluar" class="premium-input" onchange="hitungSemua()" required></div>
         </div>
 
         <div id="containerRekan" style="background: #eff6ff; padding: 15px; border-radius: 12px; border: 1px dashed #bfdbfe; margin-bottom: 15px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <label style="font-size: 12px; font-weight: 800; color: #1d4ed8; margin: 0;"><i class="fas fa-users"></i> REKAN LEMBUR (MAKS 2)</label>
             </div>
-            
             <div id="listRekanLembur"></div>
-            
-            <button id="btnTambahRekan" onclick="tambahRekanUI()" style="width: 100%; padding: 10px; background: #ffffff; color: #2563eb; border: 2px dashed #93c5fd; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.3s;">
+            <button id="btnTambahRekan" type="button" onclick="tambahRekanUI()" style="width: 100%; padding: 10px; background: #ffffff; color: #2563eb; border: 2px dashed #93c5fd; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: 0.3s;">
                 <i class="fas fa-plus"></i> Tambah Rekan
             </button>
         </div>
-        <div class="form-group-premium"><label>KATEGORI LEMBUR (KOLEKTIF)</label><select id="kategori_lembur" class="premium-input" onchange="hitungSemua()"><option value="HARI BIASA">HARI BIASA</option><option value="HARI LIBUR">HARI LIBUR</option></select></div>
-        <div class="form-group-premium"><label>JENIS LEMBUR (KOLEKTIF)</label><select id="jenis_lembur" class="premium-input" onchange="hitungSemua()"><option value="ADMIN/HAR">ADMIN/HAR</option><option value="OPERATOR">OPERATOR</option></select></div>
+
+        <!-- Tambahkan opsi kosong dan required -->
+        <div class="form-group-premium"><label>KATEGORI LEMBUR (KOLEKTIF)</label>
+            <select id="kategori_lembur" class="premium-input" onchange="hitungSemua()" required>
+                <option value="">-- Pilih Kategori --</option>
+                <option value="HARI BIASA">HARI BIASA</option>
+                <option value="HARI LIBUR">HARI LIBUR</option>
+            </select>
+        </div>
+
+        <!-- Tambahkan opsi kosong dan required -->
+        <div class="form-group-premium"><label>JENIS LEMBUR (KOLEKTIF)</label>
+            <select id="jenis_lembur" class="premium-input" onchange="hitungSemua()" required>
+                <option value="">-- Pilih Jenis --</option>
+                <option value="ADMIN/HAR">ADMIN/HAR</option>
+                <option value="OPERATOR">OPERATOR</option>
+            </select>
+        </div>
         
         <div class="form-group-premium" style="margin-top: 10px;"><label>TOTAL JAM KERJA (PEMBUAT)</label><input type="text" id="total_jam_kerja" class="premium-input read-only-input" readonly></div>
         <div class="form-group-premium"><label>TOTAL JAM EFEKTIF (PEMBUAT)</label><input type="text" id="total_jam_efektif" class="premium-input read-only-input" readonly style="color: #2563eb; font-weight: 800;"></div>
@@ -888,7 +905,7 @@ input:focus + .input-icon {
             <div class="form-group-premium" style="margin-bottom: 0;"><label>x4</label><input type="text" id="val_x4" class="premium-input read-only-input" readonly placeholder="-" style="text-align: center;"></div>
         </div>
         
-        <div class="form-group-premium"><label>DESKRIPSI PEKERJAAN</label><textarea id="deskripsi" class="premium-input" placeholder="Masukkan deskripsi (Maks 35 Karakter)..." maxlength="35" oninput="this.value = this.value.replace(/[^a-zA-Z0-9 ]/g, '');"></textarea></div>
+        <div class="form-group-premium"><label>DESKRIPSI PEKERJAAN</label><textarea id="deskripsi" class="premium-input" placeholder="Masukkan deskripsi (Maks 35 Karakter)..." maxlength="35" required oninput="this.value = this.value.replace(/[^a-zA-Z0-9 ]/g, '');"></textarea></div>
         
         <button onclick="submitDataKolektif()" class="btn-submit-premium"><i class="fas fa-paper-plane"></i> KIRIM PENGAJUAN TIM</button>
     </div>
@@ -2910,6 +2927,7 @@ async function simpanPerubahan() {
                 row: barisTerpilih.row,
                 nip: usernameLogin,
                 usernameEksekutor: usernameLogin,
+                namaEksekutor: namaUser, // <--- TAMBAHKAN BARIS INI
                 ...data 
             })
         });
@@ -3483,17 +3501,24 @@ function kalkulasiJamInternal(masuk, keluar, kategori, jenis) {
 
 // --- FUNGSI SUBMIT ROMBONGAN KE BACKEND ---
 async function submitDataKolektif() {
+    // 1. Ambil semua elemen input
     const tanggal = document.getElementById("tanggal").value;
+    const jamMasuk = document.getElementById("jam_masuk").value;
+    const jamKeluar = document.getElementById("jam_keluar").value;
     const kategori = document.getElementById("kategori_lembur").value;
     const jenis = document.getElementById("jenis_lembur").value;
+    const statusPekerjaan = document.getElementById("status_pekerjaan").value;
     const deskripsi = document.getElementById("deskripsi").value.trim();
     
-    if (!tanggal || deskripsi === "") {
-        alert("⚠️ Lengkapi Tanggal and Deskripsi Pekerjaan!"); return;
+    // 2. VALIDASI KETAT: Cek apakah ada yang kosong
+    if (!tanggal || !jamMasuk || !jamKeluar || !kategori || !jenis || !statusPekerjaan || deskripsi === "") {
+        alert("⚠️ Mohon lengkapi SEMUA kolom form (Tanggal, Jam, Kategori, Jenis, Status, dan Deskripsi) sebelum melakukan submit!"); 
+        return; // Menghentikan proses jika ada yang kosong
     }
 
-    let mPembuat = document.getElementById("jam_masuk").value;
-    let kPembuat = document.getElementById("jam_keluar").value;
+    // 3. Lanjutkan ke logika pembulatan jam yang sudah ada
+    let mPembuat = bulatkanWaktu(jamMasuk);
+    let kPembuat = bulatkanWaktu(jamKeluar);
     
     mPembuat = bulatkanWaktu(mPembuat);
     kPembuat = bulatkanWaktu(kPembuat);
@@ -3575,6 +3600,7 @@ async function submitDataKolektif() {
             deskripsi: deskripsi,
             kode_unit: localStorage.getItem("kodeUnit") || "PNS",
             submitter: usernameLogin,
+            nama_submitter: namaUser, // <--- TAMBAHKAN BARIS INI
             peserta: dataPeserta
         };
 
