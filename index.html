@@ -779,121 +779,115 @@ input:focus + .input-icon {
     </div>
 
     <div id="infoPegawaiSection" style="display:none;">
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px;">
-            <div class="menu-icon-wrapper theme-blue" style="width: 42px; height: 42px; font-size: 18px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);">
-                <i class="fas fa-id-badge"></i>
-            </div>
-            <div>
-                <h2 style="color:#0f172a; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">Informasi Pegawai</h2>
-                <span style="font-size: 11px; color: #64748b; font-weight: 600;">Data identitas digital & Direktori PLN</span>
-            </div>
-        </div> 
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px;">
+        <div class="menu-icon-wrapper theme-blue" style="width: 42px; height: 42px; font-size: 18px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);">
+            <i class="fas fa-id-badge"></i>
+        </div>
+        <div>
+            <h2 style="color:#0f172a; margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">Informasi Pegawai</h2>
+            <span style="font-size: 11px; color: #64748b; font-weight: 600;">Data identitas digital & Direktori PLN</span>
+        </div>
+    </div> 
 
-        <!-- KARTU IDENTITAS DIGITAL (HERO SECTION) -->
-        <div style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); border-radius: 20px; padding: 25px; color: white; position: relative; overflow: hidden; box-shadow: 0 15px 35px rgba(15, 23, 42, 0.2); margin-bottom: 20px; border-bottom: 4px solid #0ea5e9;">
-    
-        <!-- TAMBAHKAN TOMBOL EDIT DISINI (Pojok kanan atas kartu) -->
-        <button onclick="bukaModalEditProfil()" style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #ffffff; padding: 5px 12px; border-radius: 8px; font-size: 10px; font-weight: 700; cursor: pointer; backdrop-filter: blur(5px); z-index: 10; transition: 0.3s; letter-spacing: 0.5px;">
-        <i class="fas fa-pen-to-square" style="margin-right: 5px;"></i> EDIT PROFIL
-        </button>
-    
+    <!-- KARTU IDENTITAS DIGITAL (HERO SECTION) -->
+    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); border-radius: 20px; padding: 25px; color: white; position: relative; overflow: hidden; box-shadow: 0 15px 35px rgba(15, 23, 42, 0.2); margin-bottom: 20px; border-bottom: 4px solid #0ea5e9;">
+        
         <!-- Elemen Hiasan Background -->
         <div style="position: absolute; top: 0; right: 0; opacity: 0.05; font-size: 160px; transform: translate(15%, -15%); pointer-events: none;">
-        <i class="fas fa-fingerprint"></i>
+            <i class="fas fa-fingerprint"></i>
         </div>
-            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.1; background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px; pointer-events: none;"></div>
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.1; background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 24px 24px; pointer-events: none;"></div>
+        
+        <div style="position: relative; z-index: 2;">
             
-            <div style="position: relative; z-index: 2;">
-                <!-- Tombol Edit Profil -->
-                <button onclick="bukaModalEditProfil()" style="position: absolute; top: 0px; right: 0px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; backdrop-filter: blur(4px); z-index: 10; transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
-                <i class="fas fa-edit"></i> EDIT
-                </button>
-                <div style="font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; font-weight: 800;">
+            <!-- HEADER KARTU: BADGE & TOMBOL EDIT SEJAJAR -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; background: rgba(0,0,0,0.25); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);">
                     <i class="fas fa-circle-check" style="color: #10b981; margin-right: 4px;"></i> TERVERIFIKASI
                 </div>
-                <div id="infoNama" style="font-size: 22px; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.5px; line-height: 1.2;">-</div>
                 
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <!-- Baris NIP -->
-                    <div style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 14px; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05);">
-                        <div style="width: 32px; height: 32px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">
-                            <i class="fas fa-id-card"></i>
-                        </div>
-                        <div>
-                            <div style="font-size: 10px; color: #cbd5e1; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Nomor Induk Pegawai</div>
-                            <div id="infoNip" style="font-size: 15px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px; margin-top: 2px;">-</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Baris Jabatan -->
-                    <div style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 14px; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05);">
-                        <div style="width: 32px; height: 32px; background: rgba(251, 191, 36, 0.2); color: #fbbf24; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">
-                            <i class="fas fa-briefcase"></i>
-                        </div>
-                        <div>
-                            <div style="font-size: 10px; color: #cbd5e1; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Jabatan Resmi</div>
-                            <div id="infoJabatan" style="font-size: 14px; font-weight: 700; color: #ffffff; line-height: 1.3; margin-top: 2px;">-</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Baris Email -->
-                    <div style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 14px; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05);">
-                        <div style="width: 32px; height: 32px; background: rgba(167, 139, 250, 0.2); color: #a78bfa; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <div style="overflow: hidden;">
-                            <div style="font-size: 10px; color: #cbd5e1; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Alamat Email</div>
-                            <div id="infoEmail" style="font-size: 14px; font-weight: 700; color: #ffffff; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</div>
-                        </div>
-                    </div>
-
-                    <!-- Baris WhatsApp -->
-                    <div style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 14px; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05);">
-                        <div style="width: 32px; height: 32px; background: rgba(16, 185, 129, 0.2); color: #10b981; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;">
-                            <i class="fab fa-whatsapp"></i>
-                        </div>
-                        <div style="overflow: hidden;">
-                            <div style="font-size: 10px; color: #cbd5e1; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">No. WhatsApp</div>
-                            <div id="infoWa" style="font-size: 14px; font-weight: 700; color: #ffffff; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. TIPS GANTI FOTO (Lebih Elegan) -->
-        <div style="background: #f8fafc; padding: 16px 20px; border-radius: 16px; border: 1px dashed #cbd5e1; display: flex; gap: 15px; margin-bottom: 30px; align-items: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
-            <div style="width: 38px; height: 38px; background: #ffffff; color: #0284c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                <i class="fas fa-camera-rotate"></i>
-            </div>
-            <div style="font-size: 11px; color: #475569; line-height: 1.5;">
-                <strong style="color: #0f172a; font-size: 12px;">Perbarui Foto Profil</strong><br>Kembali ke halaman utama, lalu ketuk area foto lingkaran untuk mengunggah foto baru Anda.
-            </div>
-        </div>
-
-        <!-- 3. DIREKTORI PENCARIAN (Dipindah ke bawah) -->
-        <div style="background: #ffffff; padding: 25px 20px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05); position: relative;">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
-                <div style="width: 6px; height: 24px; background: linear-gradient(to bottom, #2563eb, #38bdf8); border-radius: 4px;"></div>
-                <div>
-                    <h3 style="font-size: 15px; margin: 0; color: #0f172a; font-weight: 800; letter-spacing: -0.3px;">Direktori Pegawai</h3>
-                    <span style="font-size: 10px; color: #64748b; font-weight: 600;">Cari identitas rekan kerja Anda</span>
-                </div>
+                <!-- TOMBOL EDIT YANG SUDAH DIKOREKSI (Kunci: width: auto !important;) -->
+                <button onclick="bukaModalEditProfil()" style="width: auto !important; background: rgba(255,255,255,0.15) !important; border: 1px solid rgba(255,255,255,0.3) !important; color: #ffffff !important; padding: 6px 14px !important; border-radius: 8px !important; font-size: 10px !important; font-weight: 700 !important; cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; box-shadow: none !important;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+                    <i class="fas fa-pen-to-square"></i> EDIT
+                </button>
             </div>
             
-            <div style="position: relative;">
-                <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px; pointer-events: none;"></i>
-                <input type="text" id="searchPegawaiInput" class="premium-input" 
-                       placeholder="Ketik nama atau NIP..." 
-                       onkeyup="searchPegawai()"
-                       style="padding: 14px 20px 14px 42px !important; width: 100%; border-radius: 12px; border: 2px solid #e2e8f0 !important; outline: none; transition: 0.3s; background: #f8fafc; font-size: 13px; font-weight: 600; color: #1e293b;">
+            <div id="infoNama" style="font-size: 22px; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.5px; line-height: 1.2;">-</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Baris NIP -->
+                <div style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 14px; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="width: 32px; height: 32px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;"><i class="fas fa-id-card"></i></div>
+                    <div>
+                        <div style="font-size: 10px; color: #cbd5e1; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Nomor Induk Pegawai</div>
+                        <div id="infoNip" style="font-size: 15px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px; margin-top: 2px;">-</div>
+                    </div>
+                </div>
                 
-                <div id="resultsList" style="position: absolute; width: 100%; margin-top: 8px; background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 15px 35px -5px rgba(0,0,0,0.15); max-height: 220px; overflow-y: auto; display: none; z-index: 1000;">
+                <!-- Baris Jabatan -->
+                <div style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 14px; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="width: 32px; height: 32px; background: rgba(251, 191, 36, 0.2); color: #fbbf24; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;"><i class="fas fa-briefcase"></i></div>
+                    <div>
+                        <div style="font-size: 10px; color: #cbd5e1; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Jabatan Resmi</div>
+                        <div id="infoJabatan" style="font-size: 14px; font-weight: 700; color: #ffffff; line-height: 1.3; margin-top: 2px;">-</div>
+                    </div>
+                </div>
+                
+                <!-- Baris Email -->
+                <div style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 14px; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="width: 32px; height: 32px; background: rgba(167, 139, 250, 0.2); color: #a78bfa; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;"><i class="fas fa-envelope"></i></div>
+                    <div style="overflow: hidden;">
+                        <div style="font-size: 10px; color: #cbd5e1; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Alamat Email</div>
+                        <div id="infoEmail" style="font-size: 14px; font-weight: 700; color: #ffffff; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</div>
+                    </div>
+                </div>
+
+                <!-- Baris WhatsApp -->
+                <div style="display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 14px; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="width: 32px; height: 32px; background: rgba(16, 185, 129, 0.2); color: #10b981; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;"><i class="fab fa-whatsapp"></i></div>
+                    <div style="overflow: hidden;">
+                        <div style="font-size: 10px; color: #cbd5e1; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">No. WhatsApp</div>
+                        <div id="infoWa" style="font-size: 14px; font-weight: 700; color: #ffffff; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div id="formLembur" style="display:none;">
+
+    <!-- TIPS GANTI FOTO -->
+    <div style="background: #f8fafc; padding: 16px 20px; border-radius: 16px; border: 1px dashed #cbd5e1; display: flex; gap: 15px; margin-bottom: 30px; align-items: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+        <div style="width: 38px; height: 38px; background: #ffffff; color: #0284c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <i class="fas fa-camera-rotate"></i>
+        </div>
+        <div style="font-size: 11px; color: #475569; line-height: 1.5;">
+            <strong style="color: #0f172a; font-size: 12px;">Perbarui Foto Profil</strong><br>Kembali ke halaman utama, lalu ketuk area foto lingkaran untuk mengunggah foto baru Anda.
+        </div>
+    </div>
+
+    <!-- DIREKTORI PENCARIAN -->
+    <div style="background: #ffffff; padding: 25px 20px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05); position: relative;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
+            <div style="width: 6px; height: 24px; background: linear-gradient(to bottom, #2563eb, #38bdf8); border-radius: 4px;"></div>
+            <div>
+                <h3 style="font-size: 15px; margin: 0; color: #0f172a; font-weight: 800; letter-spacing: -0.3px;">Direktori Pegawai</h3>
+                <span style="font-size: 10px; color: #64748b; font-weight: 600;">Cari identitas rekan kerja Anda</span>
+            </div>
+        </div>
+        
+        <div style="position: relative;">
+            <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px; pointer-events: none;"></i>
+            <input type="text" id="searchPegawaiInput" class="premium-input" 
+                   placeholder="Ketik nama atau NIP..." 
+                   onkeyup="searchPegawai()"
+                   style="padding: 14px 20px 14px 42px !important; width: 100%; border-radius: 12px; border: 2px solid #e2e8f0 !important; outline: none; transition: 0.3s; background: #f8fafc; font-size: 13px; font-weight: 600; color: #1e293b;">
+            
+            <div id="resultsList" style="position: absolute; width: 100%; margin-top: 8px; background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 15px 35px -5px rgba(0,0,0,0.15); max-height: 220px; overflow-y: auto; display: none; z-index: 1000;">
+            </div>
+        </div>
+    </div>
+</div>
+
+  <div id="formLembur" style="display:none;">
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
         <div class="menu-icon-wrapper theme-blue" style="width: 42px; height: 42px; font-size: 18px;"><i class="fas fa-file-signature"></i></div>
         <div><h2 style="color:#1e40af; margin: 0; font-size: 20px; font-weight: 800;">Pengajuan Lembur</h2></div>
