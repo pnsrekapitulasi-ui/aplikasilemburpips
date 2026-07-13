@@ -3672,33 +3672,54 @@ async function submitDataKolektif() {
 
 async function validasiUpdateSistem() {
     try {
+        // Tambahkan header 'no-cache' agar selalu mengecek versi langsung ke server
         const url = `${SCRIPT_URL}?action=checkVersion&t=${new Date().getTime()}`;
-        const response = await fetch(url);
+        const response = await fetch(url, { cache: "no-store" });
         
         if (!response.ok) return; 
         const result = await response.json();
         
-        // --- 1. CEK MAINTENANCE TERLEBIH DAHULU ---
+        // --- 1. CEK MAINTENANCE ---
         if (result.status_sistem === "MAINTENANCE") {
-            // Sembunyikan aplikasi utama, tampilkan layar maintenance
             document.getElementById("layarUtamaAplikasi").style.display = "none";
             document.getElementById("layarMaintenance").style.display = "flex";
             document.body.classList.remove("logged-in");
-            return; // Hentikan proses selanjutnya
+            return; 
         } else {
-            // Pastikan aplikasi utama muncul jika status SELESAI
             document.getElementById("layarUtamaAplikasi").style.display = "flex";
             document.getElementById("layarMaintenance").style.display = "none";
         }
-        // ------------------------------------------
         
         // --- 2. CEK UPDATE VERSI SISTEM ---
         const savedVersion = localStorage.getItem("appVersionSaved") || "1.0.0";
+        
         if (result.version && result.version !== savedVersion) {
+            
+            // A. Tampilkan Modal Update terlebih dahulu
             document.getElementById("updateVersionNum").innerText = result.version;
             document.getElementById("updateNotesContent").innerHTML = result.notes || "Sistem telah diperbarui.";
             document.getElementById("modalUpdateSystem").style.display = "flex";
+            
+            // B. Simpan versi baru agar tidak melooping
             localStorage.setItem("appVersionSaved", result.version);
+            
+            // C. Ubah fungsi tombol "SAYA MENGERTI" menjadi tombol pemaksa REFRESH & LOGOUT
+            const btnUpdate = document.querySelector("#modalUpdateSystem button");
+            btnUpdate.innerText = "REFRESH & LOGIN ULANG";
+            btnUpdate.style.background = "#dc2626"; // Ubah warna jadi merah agar lebih tegas
+            
+            btnUpdate.onclick = function() {
+                btnUpdate.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyegarkan Sistem...';
+                
+                // Hapus semua memori/sesi login
+                localStorage.removeItem("isLogin");
+                localStorage.removeItem("usernameLogin");
+                localStorage.removeItem("namaUser");
+                localStorage.removeItem("role");
+                
+                // Paksa browser membuang cache dan memuat ulang halaman
+                window.location.href = window.location.href.split('?')[0] + "?refresh=" + new Date().getTime();
+            };
         }
     } catch (err) {
         console.log("Cek versi gagal: ", err);
