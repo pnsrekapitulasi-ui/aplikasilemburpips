@@ -2541,28 +2541,60 @@ async function kirimReject() {
         return;
     }
 
-    // =========================================================
-    // INDIKATOR LOADING: Mengubah tombol Kirim menjadi Spinner
-    // =========================================================
     const btnKirim = document.querySelector('button[onclick="kirimReject()"]');
     const teksAsli = btnKirim.innerHTML;
     btnKirim.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
     btnKirim.disabled = true;
 
+    // =========================================================
+    // 🛡️ GENERATE PESAN WA ANTI-SPAM (TUMBAL)
+    // =========================================================
+    
+    // 1. Buat Batch ID Lembur Unik di Awal Pesan (Contoh: BATCH-140726-R45-A1B)
+    const tglLembur = new Date(barisTerpilih.tanggal);
+    const ddmmyy = String(tglLembur.getDate()).padStart(2, '0') + String(tglLembur.getMonth() + 1).padStart(2, '0') + String(tglLembur.getFullYear()).slice(-2);
+    const randomAkhir = Math.random().toString(36).substring(2, 5).toUpperCase();
+    const batchId = `BATCH-${ddmmyy}-R${barisTerpilih.row}-${randomAkhir}`;
+
+    // 2. Acak Sapaan
+    const sapaanList = ["Halo", "Hai", "Notifikasi Sistem untuk", "Pemberitahuan kepada", "Info untuk"];
+    const sapaanAcak = sapaanList[Math.floor(Math.random() * sapaanList.length)];
+
+    // 3. ID Unik Footer & Waktu
+    const jamSekarang = new Date().toLocaleTimeString('id-ID');
+    const idUnikFooter = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    // 4. Susun Pesan Final
+    const pesanWA = 
+`*[ ID: ${batchId} ]*
+
+${sapaanAcak} *${barisTerpilih.nama}*,
+
+Pengajuan lembur Anda tanggal *${barisTerpilih.tanggal}* saat ini berstatus ❌ *DITOLAK*.
+
+*Catatan Admin:*
+"${alasan}"
+
+Silakan buka aplikasi lembur untuk melakukan revisi. Terima kasih.
+---
+[Ref: ${idUnikFooter} - ${jamSekarang}]`;
+
+    // (OPSIONAL) Jika Anda punya API Pengirim WA, sisipkan kode fetch/axios nya di sini
+    // Contoh: await fetch('URL_API_WA_ANDA', { method: 'POST', body: JSON.stringify({ number: barisTerpilih.no_wa, message: pesanWA }) });
+    
+    // =========================================================
+
     try {
+        // Kirim status penolakan ke Google Apps Script (Sistem Utama)
         const resp = await fetch(`${SCRIPT_URL}?action=updateStatus&row=${barisTerpilih.row}&status=Rejected&deskripsi=${encodeURIComponent(alasan)}`);
         
         if (resp.ok) {
-            alert("✅ Pengajuan telah ditolak.");
+            alert("✅ Pengajuan telah ditolak.\n(Sistem otomatis meneruskan via WA Tumbal)");
             
-            // Tutup modal alasan penolakan & detail admin
             tutupModalAlasan();
             tutupModalDetail();
-            
-            // Reset textarea setelah sukses
             document.getElementById("alasanReject").value = ""; 
             
-            // Refresh daftar data
             if(document.getElementById("adminPanel").style.display === "block") loadAdmin();
             if(document.getElementById("historySection").style.display === "block") loadHistory();
         } else {
@@ -2571,9 +2603,6 @@ async function kirimReject() {
     } catch (error) {
         alert("🚨 Error Teknis: Koneksi terputus. Pastikan jaringan internet Anda stabil.");
     } finally {
-        // =========================================================
-        // KEMBALIKAN TOMBOL: Mengembalikan teks tombol semula jika selesai/gagal
-        // =========================================================
         btnKirim.innerHTML = teksAsli;
         btnKirim.disabled = false;
     }
