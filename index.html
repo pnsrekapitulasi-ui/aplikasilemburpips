@@ -1891,13 +1891,16 @@ input:focus + .input-icon {
       if(result.status !== "success"){ alert("Username atau password salah"); btn.disabled = false; btn.innerText = "Login"; return; }
 
       namaUser = result.nama; usernameLogin = username;
-      localStorage.setItem("isLogin", "true"); localStorage.setItem("usernameLogin", username); localStorage.setItem("namaUser", result.nama); localStorage.setItem("role", result.role); localStorage.setItem("jabatanUser", result.jabatan || "Pegawai PLN"); localStorage.setItem("fotoUser", result.foto || ""); localStorage.setItem("emailUser", result.email || "Belum ada email");localStorage.setItem("waUser", result.no_wa || "Belum ada WA");
+      localStorage.setItem("isLogin", "true"); localStorage.setItem("usernameLogin", username); localStorage.setItem("namaUser", result.nama); localStorage.setItem("role", result.role); localStorage.setItem("jabatanUser", result.jabatan || "Pegawai PLN"); localStorage.setItem("fotoUser", result.foto || ""); localStorage.setItem("emailUser", result.email || "Belum ada email");// Ambil data dari kolom 'id telegram' menggunakan format kurung siku
+      localStorage.setItem("telegramUser", result.telegram || "-"); 
       localStorage.setItem("kodeUnit", result.kode_unit || "PNS");
-      renderDashboard(result.role, result.nama, result.jabatan, result.foto, username, result.email, result.no_wa);
+      
+      // Kirim data telegram langsung ke fungsi renderDashboard
+      renderDashboard(result.role, result.nama, result.jabatan, result.foto, username, result.email, result.telegram);
     } catch(err) { alert("Gagal terhubung ke server."); btn.disabled = false; btn.innerText = "Login"; }
   }
 
-  function renderDashboard(role, nama, jabatan, foto, nip, email, no_wa, telegram) {
+  function renderDashboard(role, nama, jabatan, foto, nip, email, telegram) {
     document.body.classList.add("logged-in");
     document.getElementById("corporateHeader").style.display = "block";
     document.getElementById("loginPage").style.display = "none";
@@ -1910,7 +1913,9 @@ input:focus + .input-icon {
     document.getElementById("infoNip").textContent = nip || usernameLogin || "-";
     document.getElementById("infoJabatan").textContent = jabatan || "Pegawai PLN";
     document.getElementById("infoEmail").textContent = email || localStorage.getItem("emailUser") || "-";
-    if(document.getElementById("infoWa")) document.getElementById("infoWa").textContent = no_wa || localStorage.getItem("waUser") || "-";
+    if(document.getElementById("infoTelegram")) {
+    document.getElementById("infoTelegram").innerText = telegram || localStorage.getItem("telegramUser") || "-";
+    }
     // --- TAMBAHAN: INISIALISASI DATA UNTUK FITUR SEARCH ---
     // Dipanggil di sini agar data sudah siap saat user masuk ke aplikasi
     initDataPegawai(); 
@@ -2876,7 +2881,7 @@ function kembaliMenu() {
       } 
       namaUser = localStorage.getItem("namaUser"); 
       usernameLogin = localStorage.getItem("usernameLogin"); 
-      renderDashboard(localStorage.getItem("role"), namaUser, localStorage.getItem("jabatanUser"), localStorage.getItem("fotoUser"), usernameLogin, localStorage.getItem("emailUser"), localStorage.getItem("waUser")); 
+      renderDashboard(localStorage.getItem("role"), namaUser, localStorage.getItem("jabatanUser"), localStorage.getItem("fotoUser"), usernameLogin, localStorage.getItem("emailUser"), localStorage.getItem("telegramUser")); 
       
       // Panggil fungsi restore posisi menu terakhir
       restoreViewTerakhir();
@@ -3427,8 +3432,10 @@ function bukaDetailPegawaiLain(nip) {
     document.getElementById("modalProfilNip").innerText = p.nip;
     document.getElementById("modalProfilJabatan").innerText = p.jabatan; 
     document.getElementById("modalProfilEmail").innerText = p.email;
-    document.getElementById("modalProfilWa").innerText = p.no_wa || "-";
-    
+    // Pastikan variabel 'p' memang ada sebelum memanggil p.telegram
+    if (document.getElementById("modalProfilTelegram")) {
+    document.getElementById("modalProfilTelegram").innerText = p.telegram || "-";
+    }
     // 2. Logika Menampilkan Foto vs Inisial
     const elInisial = document.getElementById("textInisialModal");
     const elFoto = document.getElementById("imgFotoModal");
