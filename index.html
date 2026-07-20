@@ -1684,6 +1684,14 @@ input:focus + .input-icon {
                 </div>
 
                 <div style="border-top: 1px solid #f1f5f9; padding-top: 16px;">
+                    <label style="font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Alamat Email</label>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
+                      <i class="fas fa-envelope" style="color: #cbd5e1; font-size: 16px;"></i>
+                      <span id="modalProfilEmail" style="font-size: 14px; font-weight: 700; color: #0f172a;">-</span>
+                    </div>
+                </div>
+
+                <div style="border-top: 1px solid #f1f5f9; padding-top: 16px;">
                     <label style="font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">ID Telegram</label>
                     <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
                     <!-- Ikon diubah menjadi fa-telegram -->
@@ -3427,40 +3435,44 @@ function bukaDetailPegawaiLain(nip) {
         return; 
     }
 
-    // 1. Isi Data Teks
-    document.getElementById("modalProfilNama").innerText = p.nama;
-    document.getElementById("modalProfilNip").innerText = p.nip;
-    document.getElementById("modalProfilJabatan").innerText = p.jabatan; 
-    document.getElementById("modalProfilEmail").innerText = p.email;
-    // Pastikan variabel 'p' memang ada sebelum memanggil p.telegram
-    if (document.getElementById("modalProfilTelegram")) {
-    document.getElementById("modalProfilTelegram").innerText = p.telegram || "-";
-    }
+    // 1. Isi Data Teks (Ditambahkan PENGAMAN "if" agar tidak error jika elemen tidak ada di HTML)
+    if (document.getElementById("modalProfilNama")) document.getElementById("modalProfilNama").innerText = p.nama || "-";
+    if (document.getElementById("modalProfilNip")) document.getElementById("modalProfilNip").innerText = p.nip || "-";
+    if (document.getElementById("modalProfilJabatan")) document.getElementById("modalProfilJabatan").innerText = p.jabatan || "-"; 
+    
+    // Ini penyebab aslinya (modalProfilEmail tidak ada di HTML Anda)
+    if (document.getElementById("modalProfilEmail")) document.getElementById("modalProfilEmail").innerText = p.email || "-";
+    
+    if (document.getElementById("modalProfilTelegram")) document.getElementById("modalProfilTelegram").innerText = p.telegram || "-";
+    
     // 2. Logika Menampilkan Foto vs Inisial
     const elInisial = document.getElementById("textInisialModal");
     const elFoto = document.getElementById("imgFotoModal");
     
-    // Cek apakah ada foto (berupa URL web atau Data Base64)
-    if (p.foto && (String(p.foto).startsWith("http") || String(p.foto).startsWith("data:image"))) {
-        // Gunakan fungsi cleanDriveUrl Anda jika fotonya dari Google Drive
-        let urlFoto = String(p.foto).startsWith("data:image") ? p.foto : cleanDriveUrl(p.foto);
-        
-        elFoto.src = urlFoto;
-        elFoto.style.display = "block"; // Munculkan gambar
-        elInisial.style.display = "none"; // Sembunyikan teks inisial
-    } else {
-        // Jika tidak ada foto, tampilkan inisial
-        elFoto.style.display = "none"; // Sembunyikan gambar
-        elInisial.style.display = "block"; // Munculkan teks inisial
-        elInisial.innerText = p.nama.substring(0, 2).toUpperCase();
+    if (elInisial && elFoto) {
+        if (p.foto && (String(p.foto).startsWith("http") || String(p.foto).startsWith("data:image"))) {
+            let urlFoto = String(p.foto).startsWith("data:image") ? p.foto : cleanDriveUrl(p.foto);
+            elFoto.src = urlFoto;
+            elFoto.style.display = "block"; // Munculkan gambar
+            elInisial.style.display = "none"; // Sembunyikan teks inisial
+        } else {
+            elFoto.style.display = "none"; // Sembunyikan gambar
+            elInisial.style.display = "block"; // Munculkan teks inisial
+            elInisial.innerText = p.nama ? p.nama.substring(0, 2).toUpperCase() : "--";
+        }
     }
     
     // 3. Tampilkan Modal
-    document.getElementById("modalProfilPegawai").style.display = "flex";
+    const modalPegawai = document.getElementById("modalProfilPegawai");
+    if (modalPegawai) {
+        modalPegawai.style.display = "flex";
+    }
     
     // 4. Sembunyikan hasil pencarian
-    document.getElementById("resultsList").style.display = "none";
-    document.getElementById("searchPegawaiInput").value = "";
+    const resultsList = document.getElementById("resultsList");
+    const searchInput = document.getElementById("searchPegawaiInput");
+    if (resultsList) resultsList.style.display = "none";
+    if (searchInput) searchInput.value = "";
 }
 
 // Tambahkan variabel ini di luar fungsi agar data log bisa disimpan ke memori
