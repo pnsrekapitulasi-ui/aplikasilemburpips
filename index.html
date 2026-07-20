@@ -1685,9 +1685,11 @@ input:focus + .input-icon {
 
                 <div style="border-top: 1px solid #f1f5f9; padding-top: 16px;">
                     <label style="font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Alamat Email</label>
-                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
-                      <i class="fas fa-envelope" style="color: #cbd5e1; font-size: 16px;"></i>
-                      <span id="modalProfilEmail" style="font-size: 14px; font-weight: 700; color: #0f172a;">-</span>
+                    <!-- Ubah align-items menjadi flex-start agar ikon tetap di atas saat teks jadi 2 baris -->
+                    <div style="display: flex; align-items: flex-start; gap: 10px; margin-top: 4px;">
+                        <i class="fas fa-envelope" style="color: #cbd5e1; font-size: 16px; margin-top: 3px;"></i>
+                        <!-- Tambahkan word-break dan line-height di sini -->
+                        <span id="modalProfilEmail" style="font-size: 14px; font-weight: 700; color: #0f172a; word-break: break-all; line-height: 1.4;">-</span>
                     </div>
                 </div>
 
