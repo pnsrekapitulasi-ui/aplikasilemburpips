@@ -3763,22 +3763,26 @@ async function submitDataKolektif() {
             dataPeserta.push({ nip: nipRek, nama: namaRek, jam_masuk: masukRek, jam_keluar: keluarRek, jadwal: jadwalRek, ...calcRek });
         }
 
-        // 3. Pengecekan Kuota Massal & Proteksi Akumulasi > 60 Jam (Mencegah submit gabungan)
+        // 3. Pengecekan Kuota Massal & Proteksi Akumulasi > 60 Jam
+        const isIndividu = dataPeserta.length === 1; // LOGIKA BARU: Cek apakah pengaju sendirian
+
         for (let i = 0; i < dataPeserta.length; i++) {
-            // A. Cek Kuota Harian (Double Input)
+            // A. Cek Kuota Harian (Double Input) - TETAP JALAN UNTUK SEMUA (Individu maupun Tim)
             const respQuota = await fetch(`${SCRIPT_URL}?action=checkQuota&nip=${encodeURIComponent(dataPeserta[i].nip)}&tanggal=${encodeURIComponent(tanggal)}`);
             const cekQuota = await respQuota.json();
             if (!cekQuota.valid) throw new Error(`Gagal pada ${dataPeserta[i].nama}: ${cekQuota.message}`);
 
-            // B. Cek Akumulasi Batas Kritis 60 Jam
-            const respLimit = await fetch(`${SCRIPT_URL}?action=checkHoursLimit&nama=${encodeURIComponent(dataPeserta[i].nama)}&jamEfektif=${dataPeserta[i].total_efektif}`);
-            const cekLimit = await respLimit.json();
-            
-            if (!cekLimit.valid) {
-                if (cekLimit.message === "sudah_lebih") {
-                    throw new Error(`🚫 PENGAJUAN TIM DIBATALKAN\n\nPegawai atas nama: ${dataPeserta[i].nama} (${dataPeserta[i].nip}) terdeteksi SUDAH MELEBIHI 60 JAM akumulasi lembur pada siklus bulan ini.\n(Total Saat Ini: ${formatAngka(cekLimit.total)} Jam).\n\nSesuai aturan rekapitulasi, silakan keluarkan pegawai tersebut dari tim/rombongan ini, lalu arahkan dia untuk melakukan PROSES PENGAJUAN TUNGGAL/SENDIRI agar data pembayarannya terpisah.`);
-                } else if (cekLimit.message === "akan_lebih") {
-                    throw new Error(`🚫 PENGAJUAN TIM DIBATALKAN\n\nPegawai atas nama: ${dataPeserta[i].nama} (${dataPeserta[i].nip}) terdeteksi AKAN MELEBIHI 60 JAM jika pengajuan tim ini diteruskan.\n(Total Saat Ini: ${formatAngka(cekLimit.total)} Jam + Pengajuan Baru: ${formatAngka(dataPeserta[i].total_efektif)} Jam = ${formatAngka(cekLimit.prediksi)} Jam).\n\nSesuai aturan rekapitulasi, silakan keluarkan pegawai tersebut dari tim/rombongan ini, lalu arahkan dia untuk melakukan PROSES PENGAJUAN TUNGGAL/SENDIRI agar data pembayarannya terpisah.`);
+            // B. Cek Akumulasi Batas Kritis 60 Jam - HANYA DITOLAK JIKA INI ROMBONGAN TIM (> 1 Orang)
+            if (!isIndividu) {
+                const respLimit = await fetch(`${SCRIPT_URL}?action=checkHoursLimit&nama=${encodeURIComponent(dataPeserta[i].nama)}&jamEfektif=${dataPeserta[i].total_efektif}`);
+                const cekLimit = await respLimit.json();
+                
+                if (!cekLimit.valid) {
+                    if (cekLimit.message === "sudah_lebih") {
+                        throw new Error(`🚫 PENGAJUAN TIM DIBATALKAN\n\nPegawai atas nama: ${dataPeserta[i].nama} (${dataPeserta[i].nip}) terdeteksi SUDAH MELEBIHI 60 JAM akumulasi lembur pada siklus bulan ini.\n(Total Saat Ini: ${formatAngka(cekLimit.total)} Jam).\n\nSesuai aturan rekapitulasi, silakan keluarkan pegawai tersebut dari tim/rombongan ini, lalu arahkan dia untuk melakukan PROSES PENGAJUAN TUNGGAL/SENDIRI agar data pembayarannya terpisah.`);
+                    } else if (cekLimit.message === "akan_lebih") {
+                        throw new Error(`🚫 PENGAJUAN TIM DIBATALKAN\n\nPegawai atas nama: ${dataPeserta[i].nama} (${dataPeserta[i].nip}) terdeteksi AKAN MELEBIHI 60 JAM jika pengajuan tim ini diteruskan.\n(Total Saat Ini: ${formatAngka(cekLimit.total)} Jam + Pengajuan Baru: ${formatAngka(dataPeserta[i].total_efektif)} Jam = ${formatAngka(cekLimit.prediksi)} Jam).\n\nSesuai aturan rekapitulasi, silakan keluarkan pegawai tersebut dari tim/rombongan ini, lalu arahkan dia untuk melakukan PROSES PENGAJUAN TUNGGAL/SENDIRI agar data pembayarannya terpisah.`);
+                    }
                 }
             }
         }
