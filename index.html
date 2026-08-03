@@ -720,33 +720,38 @@ input:focus + .input-icon {
           <div id="headerTanggal" class="header-date-badge">Memuat...</div>
         </div>
       </div>
-      <div class="profile-card" style="position: relative;">
-    
-    <!-- BUNGKUS INI AGAR LONCENG DAN ANGKA 36 BERJEJER RAPI DI POJOK KANAN ATAS -->
-    <div style="position: absolute; top: 15px; right: 15px; display: flex; align-items: center; gap: 8px;">
-        <!-- IKON LONCENG -->
-        <div class="notif-container" onclick="toggleNotifModal()" style="cursor: pointer; position: relative; font-size: 18px; width: 34px; height: 34px; background: rgba(255, 255, 255, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.2);">
-            <span>🔔</span>
-            <span class="notif-badge" id="notifBadge" style="display: none; position: absolute; top: -3px; right: -3px; background: #ef4444; color: white; border-radius: 50%; padding: 1px 5px; font-size: 10px; font-weight: bold;">0</span>
-        </div>
-        
-        <!-- ANGKA TOTAL JAM -->
-        <div class="counter-lembur" id="counterTotalJam" title="Total Jam Normal" style="position: static !important; margin: 0 !important;">0</div>
-    </div>
 
-    <div class="profile-left-box">
-        <label for="fileInputFoto" class="avatar-container" id="avatarContainerBox">
+  <div class="profile-card" style="display: flex; align-items: flex-start; gap: 12px; position: relative; padding: 20px 15px;">
+    
+    <!-- 1. FOTO PROFIL -->
+    <div class="profile-left-box" style="flex-shrink: 0; margin: 0;">
+        <label for="fileInputFoto" class="avatar-container" id="avatarContainerBox" style="width: 55px; height: 55px; margin: 0;">
             <img id="fotoPegawai" src="" class="profile-img" alt="Foto Profil" onerror="handleFotoError()">
             <span id="fotoInisial" class="avatar-text">--</span>
             <div class="avatar-overlay" id="overlayLoadingText"><span>Ganti Foto</span></div>
         </label>
         <input type="file" id="fileInputFoto" accept="image/*" hidden onchange="uploadFoto()">
     </div>
-    <div class="profile-info">
-        <div id="namaPegawai" class="profile-name">Nama Pegawai</div>
-        <div id="nipPegawai" class="profile-nip">NIP: -</div>
-        <div id="jabatanPegawai" class="profile-job">Jabatan Pegawai</div>
+    
+    <!-- 2. TEKS NAMA, NIP, & JABATAN (Akan menyesuaikan sisa ruang) -->
+    <div class="profile-info" style="flex: 1; min-width: 0; padding-right: 5px;">
+        <div id="namaPegawai" class="profile-name" style="font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Nama Pegawai</div>
+        <div id="nipPegawai" class="profile-nip" style="font-size: 11px;">NIP: -</div>
+        <div id="jabatanPegawai" class="profile-job" style="font-size: 11px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Jabatan Pegawai</div>
     </div>
+
+    <!-- 3. KELOMPOK LONCENG DAN ANGKA 36 DI POJOK KANAN ATAS -->
+    <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-top: -2px;">
+        <!-- IKON LONCENG -->
+        <div class="notif-container" onclick="toggleNotifModal()" style="cursor: pointer; position: relative; font-size: 16px; width: 32px; height: 32px; background: rgba(255, 255, 255, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.2);">
+            <span>🔔</span>
+            <span class="notif-badge" id="notifBadge" style="display: none; position: absolute; top: -3px; right: -3px; background: #ef4444; color: white; border-radius: 50%; padding: 1px 4px; font-size: 9px; font-weight: bold;">0</span>
+        </div>
+        
+        <!-- ANGKA TOTAL JAM -->
+        <div class="counter-lembur" id="counterTotalJam" title="Total Jam Normal" style="position: static !important; margin: 0 !important; width: 32px; height: 32px; font-size: 13px; display: flex; align-items: center; justify-content: center;">0</div>
+    </div>
+
 </div>
 
 <div id="notifBar" class="notif-container" onclick="this.style.display='none'; showRiwayat();">
