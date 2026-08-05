@@ -680,6 +680,23 @@ input:focus + .input-icon {
 .notif-title { font-weight: bold; font-size: 14px; margin-bottom: 4px; color: #1e293b; }
 .notif-desc { font-size: 12px; color: #475569; margin-bottom: 6px; line-height: 1.4; }
 .notif-time { font-size: 10px; color: #94a3b8; text-align: right; }
+
+/* Efek Transisi & Warna Cerdas Lonceng Notifikasi */
+#bellContainer {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bell-green {
+  background: #dcfce7 !important; 
+  border-color: #22c55e !important;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.6) !important;
+}
+
+.bell-red {
+  background: #fee2e2 !important; 
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.6) !important;
+}
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -740,17 +757,17 @@ input:focus + .input-icon {
         <div id="jabatanPegawai" class="profile-job" style="font-size: 11px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Jabatan Pegawai</div>
     </div>
 
-    <!-- 3. KELOMPOK LONCENG DAN ANGKA 36 DI POJOK KANAN ATAS -->
-    <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-top: -2px;">
-        <!-- IKON LONCENG -->
-        <div class="notif-container" onclick="toggleNotifModal()" style="cursor: pointer; position: relative; font-size: 16px; width: 32px; height: 32px; background: rgba(255, 255, 255, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.2);">
-            <span>🔔</span>
-            <span class="notif-badge" id="notifBadge" style="display: none; position: absolute; top: -3px; right: -3px; background: #ef4444; color: white; border-radius: 50%; padding: 1px 4px; font-size: 9px; font-weight: bold;">0</span>
-        </div>
-        
-        <!-- ANGKA TOTAL JAM -->
-        <div class="counter-lembur" id="counterTotalJam" title="Total Jam Normal" style="position: static !important; margin: 0 !important; width: 32px; height: 32px; font-size: 13px; display: flex; align-items: center; justify-content: center;">0</div>
+    <!-- 3. KELOMPOK LONCENG DI POJOK KANAN ATAS -->
+<div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0; margin-top: -2px;">
+    
+    <!-- IKON LONCENG CERDAS -->
+    <div id="bellContainer" class="notif-container" onclick="toggleNotifModal()" style="cursor: pointer; position: relative; font-size: 16px; width: 34px; height: 34px; background: rgba(255, 255, 255, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.2);">
+        <span>🔔</span>
+        <!-- ID di bawah ini sudah diubah menjadi counterTotalJam -->
+        <span class="notif-badge" id="counterTotalJam" style="display: none; position: absolute; top: -3px; right: -3px; background: #ef4444; color: white; border-radius: 50%; padding: 1px 4px; font-size: 9px; font-weight: bold;">0</span>
     </div>
+    
+</div>
 
 </div>
 
@@ -4344,26 +4361,42 @@ function fetchNotifikasiLonceng() {
     });
 }
 
-// Fungsi menyusun data ke dalam jendela HTML
+// Fungsi menyusun data & memberikan warna lonceng
 function renderNotifikasi(unreadCount, listNotif) {
   let badge = document.getElementById("notifBadge");
   let container = document.getElementById("notifListContainer");
+  let bellBox = document.getElementById("bellContainer"); // Ambil elemen lonceng
   
-  // Tampilkan atau sembunyikan angka merah (badge)
+  // 1. Reset warna lonceng ke mode bersih/normal
+  if (bellBox) bellBox.classList.remove("bell-green", "bell-red");
+
+  // 2. Logika memunculkan badge & warna menyala
   if(unreadCount > 0) {
     badge.innerText = unreadCount;
     badge.style.display = "inline-block";
+    
+    // Cari notifikasi paling atas (terbaru) yang belum dibaca
+    let latestUnread = listNotif.find(n => n.isRead === false);
+    if (latestUnread && bellBox) {
+        let aksi = String(latestUnread.aksi).toUpperCase();
+        // Warnai lonceng sesuai jenis aksi terbaru
+        if (aksi.includes("REJECT")) {
+            bellBox.classList.add("bell-red");
+        } else if (aksi.includes("APPROVE")) {
+            bellBox.classList.add("bell-green");
+        }
+    }
   } else {
     badge.style.display = "none";
   }
   
-  // Jika tidak ada notif sama sekali
+  // Jika list kosong
   if(listNotif.length === 0) {
     container.innerHTML = "<p style='text-align:center; font-size:13px; color:gray; margin-top: 15px;'>Belum ada notifikasi baru.</p>";
     return;
   }
   
-  // Jika ada notif, susun kotak-kotaknya
+  // Susun daftar notifikasi
   let html = "";
   listNotif.forEach(n => {
     let unreadClass = n.isRead ? "" : "unread";
@@ -4378,33 +4411,32 @@ function renderNotifikasi(unreadCount, listNotif) {
   container.innerHTML = html;
 }
 
-// Fungsi ketika sebuah notifikasi diklik (Tandai telah dibaca)
+// Fungsi ketika notifikasi diklik
 function klikNotifikasi(rowSheet, element) {
-  // 1. Secara instan hapus warna birunya (biar terasa cepat di layar HP)
   if(element.classList.contains("unread")) {
+    // Matikan status unread secara instan di UI
     element.classList.remove("unread");
     
-    // Kurangi angka di lonceng
     let badge = document.getElementById("notifBadge");
+    let bellBox = document.getElementById("bellContainer");
     let hitungSisa = parseInt(badge.innerText) - 1;
+    
+    // Update sisa angka
     if(hitungSisa > 0) {
       badge.innerText = hitungSisa;
     } else {
       badge.style.display = "none";
+      if (bellBox) bellBox.classList.remove("bell-green", "bell-red"); // Matikan warna lonceng jika habis
     }
     
-    // 2. Beri tahu server secara diam-diam bahwa pesan ini sudah dibaca
-    let nip = localStorage.getItem("username") || window.usernameGlobal;
+    // Beri tahu server pesan sudah dibaca
+    let nip = localStorage.getItem("usernameLogin") || usernameLogin; 
     fetch(`${URL_APPS_SCRIPT}?action=bacaNotif&username=${nip}&rowNotif=${rowSheet}`)
       .then(res => res.json())
       .catch(err => console.error(err));
   }
   
-  // Opsi Tambahan: Tutup modal setelah diklik
   toggleNotifModal();
-  
-  // Anda juga bisa menambahkan kode di sini untuk melempar pengguna ke halaman "Riwayat Lembur"
-  // contoh: tampilkanMenu('riwayat');
 }
 </script>
 
