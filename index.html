@@ -4265,25 +4265,14 @@ function toggleNotifModal() {
     const isHidden = modal.style.display === 'none' || modal.style.display === '';
 
     if (isHidden) {
-        // 1. TAMPILKAN POP-UP
         modal.style.display = 'block';
-
-        // 2. TANDAI SUDAH DIBACA (Hilangkan badge angka merah secara instan)
         if (badge) {
             badge.style.display = 'none';
             badge.innerText = '0';
         }
-
-        // 3. LOAD DATA NOTIF (Hanya load jika belum diload sebelumnya agar tidak berat)
-        if (!isNotifLoaded) {
-            loadNotifikasiData();
-        }
-
-        // Opsional: Jika Anda punya fungsi backend untuk mengubah status "read" di database
-        // google.script.run.tandaiNotifDibaca(nipPegawai); 
-        
+        // Selalu ambil data terbaru setiap kali modal dibuka agar tidak macet
+        loadNotifikasiData();
     } else {
-        // TUTUP POP-UP
         modal.style.display = 'none';
     }
 }
@@ -4295,19 +4284,24 @@ async function loadNotifikasiData() {
     try {
         let nip = usernameLogin || localStorage.getItem("usernameLogin") || "";
         
-        // Menggunakan SCRIPT_URL utama yang aktif, bukan URL_APPS_SCRIPT yang terpotong (...)
         const response = await fetch(`${SCRIPT_URL}?action=getNotifLonceng&username=${encodeURIComponent(nip)}`);
         const data = await response.json();
 
-        if (data.status === "success") {
+        if (data && data.status === "success") {
             renderNotifikasi(data.unread, data.list);
         } else {
             container.innerHTML = "<p style='text-align:center; font-size:13px; color:gray; margin-top: 15px;'>Belum ada notifikasi baru.</p>";
         }
-        isNotifLoaded = true; // Tandai sudah dimuat
     } catch (err) {
         console.error("Gagal mengambil notif:", err);
-        container.innerHTML = '<p style="text-align:center; color:#ef4444; font-size: 13px;">Gagal memuat notifikasi.</p>';
+        // Jika gagal, tampilkan pesan error beserta tombol Coba Lagi agar tidak stuck
+        container.innerHTML = `
+            <div style="text-align:center; padding: 20px;">
+                <p style="color:#ef4444; font-size: 12px; margin-bottom: 10px;">Gagal terhubung ke server.</p>
+                <button onclick="loadNotifikasiData()" style="background:#2563eb; color:white; border:none; padding:8px 14px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;">
+                    <i class="fas fa-sync-alt"></i> Coba Lagi
+                </button>
+            </div>`;
     }
 }
 
