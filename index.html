@@ -4379,25 +4379,23 @@ function fetchNotifikasiLonceng() {
     });
 }
 
-// Fungsi menyusun data & memberikan warna lonceng
 function renderNotifikasi(unreadCount, listNotif) {
   let badge = document.getElementById("notifBadge");
   let container = document.getElementById("notifListContainer");
-  let bellBox = document.getElementById("bellContainer"); // Ambil elemen lonceng
+  let bellBox = document.getElementById("bellContainer"); 
   
-  // 1. Reset warna lonceng ke mode bersih/normal
   if (bellBox) bellBox.classList.remove("bell-green", "bell-red");
 
-  // 2. Logika memunculkan badge & warna menyala
   if(unreadCount > 0) {
-    badge.innerText = unreadCount;
-    badge.style.display = "inline-block";
+    // PENGAMAN: Cek apakah elemen badge ada di HTML sebelum mengubah teksnya
+    if (badge) {
+        badge.innerText = unreadCount;
+        badge.style.display = "inline-block";
+    }
     
-    // Cari notifikasi paling atas (terbaru) yang belum dibaca
     let latestUnread = listNotif.find(n => n.isRead === false);
     if (latestUnread && bellBox) {
         let aksi = String(latestUnread.aksi).toUpperCase();
-        // Warnai lonceng sesuai jenis aksi terbaru
         if (aksi.includes("REJECT")) {
             bellBox.classList.add("bell-red");
         } else if (aksi.includes("APPROVE")) {
@@ -4405,16 +4403,14 @@ function renderNotifikasi(unreadCount, listNotif) {
         }
     }
   } else {
-    badge.style.display = "none";
+    if (badge) badge.style.display = "none";
   }
   
-  // Jika list kosong
-  if(listNotif.length === 0) {
+  if(!listNotif || listNotif.length === 0) {
     container.innerHTML = "<p style='text-align:center; font-size:13px; color:gray; margin-top: 15px;'>Belum ada notifikasi baru.</p>";
     return;
   }
   
-  // Susun daftar notifikasi
   let html = "";
   listNotif.forEach(n => {
     let unreadClass = n.isRead ? "" : "unread";
@@ -4429,27 +4425,27 @@ function renderNotifikasi(unreadCount, listNotif) {
   container.innerHTML = html;
 }
 
-// Fungsi ketika notifikasi diklik
 function klikNotifikasi(rowSheet, element) {
   if(element.classList.contains("unread")) {
-    // Matikan status unread secara instan di UI
     element.classList.remove("unread");
     
     let badge = document.getElementById("notifBadge");
     let bellBox = document.getElementById("bellContainer");
-    let hitungSisa = parseInt(badge.innerText) - 1;
     
-    // Update sisa angka
-    if(hitungSisa > 0) {
-      badge.innerText = hitungSisa;
-    } else {
-      badge.style.display = "none";
-      if (bellBox) bellBox.classList.remove("bell-green", "bell-red"); // Matikan warna lonceng jika habis
+    // PENGAMAN: Cek apakah badge ada sebelum dikurangi
+    if (badge) {
+        let hitungSisa = parseInt(badge.innerText || "0") - 1;
+        if(hitungSisa > 0) {
+          badge.innerText = hitungSisa;
+        } else {
+          badge.style.display = "none";
+        }
     }
     
-    // Beri tahu server pesan sudah dibaca
-    let nip = localStorage.getItem("usernameLogin") || usernameLogin; 
-    fetch(`${URL_APPS_SCRIPT}?action=bacaNotif&username=${nip}&rowNotif=${rowSheet}`)
+    if (bellBox) bellBox.classList.remove("bell-green", "bell-red");
+    
+    let nip = usernameLogin || localStorage.getItem("usernameLogin") || ""; 
+    fetch(`${SCRIPT_URL}?action=bacaNotif&username=${encodeURIComponent(nip)}&rowNotif=${rowSheet}`)
       .then(res => res.json())
       .catch(err => console.error(err));
   }
