@@ -4279,13 +4279,20 @@ function toggleNotifModal() {
 
 async function loadNotifikasiData() {
     const container = document.getElementById('notifListContainer');
-    container.innerHTML = '<p style="text-align:center; color:#64748b; font-size: 13px; margin-top: 15px;"><i class="fas fa-spinner fa-spin"></i> Memuat data notifikasi...</p>';
+    
+    let nip = usernameLogin || localStorage.getItem("usernameLogin") || "";
+    
+    // TESTER: Munculkan alert di HP untuk melihat apakah NIP terbaca
+    alert("NIP Terbaca di HP: " + nip); 
+
+    if (!nip) {
+        container.innerHTML = '<p style="text-align:center; color:red; font-size:12px;">NIP tidak ditemukan di memori HP. Silakan login ulang.</p>';
+        return;
+    }
+
+    container.innerHTML = '<p style="text-align:center; color:#64748b; font-size: 13px; margin-top: 15px;"><i class="fas fa-spinner fa-spin"></i> Memuat...</p>';
 
     try {
-        // Ambil NIP user yang sedang login dari memori lokal browser
-        let nip = usernameLogin || localStorage.getItem("usernameLogin") || "";
-        
-        // Wajib menggunakan fetch ke SCRIPT_URL Google Apps Script
         const response = await fetch(`${SCRIPT_URL}?action=getNotifLonceng&username=${encodeURIComponent(nip)}`);
         const data = await response.json();
 
@@ -4295,14 +4302,7 @@ async function loadNotifikasiData() {
             container.innerHTML = "<p style='text-align:center; font-size:13px; color:gray; margin-top: 15px;'>Belum ada notifikasi baru.</p>";
         }
     } catch (err) {
-        console.error("Gagal mengambil notif:", err);
-        container.innerHTML = `
-            <div style="text-align:center; padding: 20px;">
-                <p style="color:#ef4444; font-size: 12px; margin-bottom: 10px;">Gagal terhubung ke server.</p>
-                <button onclick="loadNotifikasiData()" style="background:#2563eb; color:white; border:none; padding:8px 14px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;">
-                    <i class="fas fa-sync-alt"></i> Coba Lagi
-                </button>
-            </div>`;
+        alert("Error Fetch: " + err.message); // Munculkan detail error aslinya di HP
     }
 }
 
