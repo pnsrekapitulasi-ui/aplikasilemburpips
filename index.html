@@ -4256,9 +4256,6 @@ async function simpanProfilUser() {
     }
 }
 
-// Ganti dengan URL Deployment Anda
-const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfy.../exec"; 
-
 // Variabel global untuk menyimpan status apakah notif sudah diload
 let isNotifLoaded = false;
 
@@ -4291,24 +4288,27 @@ function toggleNotifModal() {
     }
 }
 
-function loadNotifikasiData() {
+async function loadNotifikasiData() {
     const container = document.getElementById('notifListContainer');
     container.innerHTML = '<p style="text-align:center; color:#64748b; font-size: 13px; margin-top: 15px;"><i class="fas fa-spinner fa-spin"></i> Memuat data notifikasi...</p>';
 
-    // Asumsi: NIP pegawai yang sedang login tersimpan di variabel global 'nipUserAktif'
-    var nip = document.getElementById('nipPegawai').innerText.replace('NIP: ', '');
+    try {
+        let nip = usernameLogin || localStorage.getItem("usernameLogin") || "";
+        
+        // Menggunakan SCRIPT_URL utama yang aktif, bukan URL_APPS_SCRIPT yang terpotong (...)
+        const response = await fetch(`${SCRIPT_URL}?action=getNotifLonceng&username=${encodeURIComponent(nip)}`);
+        const data = await response.json();
 
-    // Memanggil fungsi di file Google Apps Script (backend)
-    // Pastikan Anda membuat fungsi 'getNotifikasiUser' di file .gs Anda
-    google.script.run
-        .withSuccessHandler(function(data) {
-            renderDaftarNotifikasi(data);
-            isNotifLoaded = true; // Tandai bahwa data sudah berhasil ditarik
-        })
-        .withFailureHandler(function(error) {
-            container.innerHTML = '<p style="text-align:center; color:#ef4444; font-size: 13px;">Gagal memuat notifikasi.</p>';
-        })
-        .getNotifikasiUser(nip);
+        if (data.status === "success") {
+            renderNotifikasi(data.unread, data.list);
+        } else {
+            container.innerHTML = "<p style='text-align:center; font-size:13px; color:gray; margin-top: 15px;'>Belum ada notifikasi baru.</p>";
+        }
+        isNotifLoaded = true; // Tandai sudah dimuat
+    } catch (err) {
+        console.error("Gagal mengambil notif:", err);
+        container.innerHTML = '<p style="text-align:center; color:#ef4444; font-size: 13px;">Gagal memuat notifikasi.</p>';
+    }
 }
 
 function renderDaftarNotifikasi(data) {
