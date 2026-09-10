@@ -2566,41 +2566,42 @@ async function doDownload() {
       barisTerpilih = null;
   }
 
+// Tambah variabel global khusus status locking admin
+let isProcessingAdmin = false;
+
 async function prosesApprove(keputusan) {
-    // 🛡️ PROTEKSI 1: Cek apakah memori HP membuang data
     if(!barisTerpilih) {
         alert("⚠️ Memori data terputus. Silakan tutup kotak detail ini dan buka kembali.");
         return;
     }
+
+    // ==============================================================
+    // 🛡️ PENGAMAN KLIK GANDA ADMIN (Frontend)
+    // ==============================================================
+    if(isProcessingAdmin) return; // Jika masih jalan proses sebelumnya, tolak klik baru
     
     let inputCatatan = "";
     
-    // Karena 'Rejected' sekarang ditangani oleh kirimReject(),
-    // fungsi ini hanya fokus untuk 'Approved'
     if (keputusan === 'Approved') {
-        // --- LOGIKA VALIDASI KEAMANAN SPKL ---
         inputCatatan = prompt("🔒 VALIDASI KEAMANAN\nMasukkan Nomor SPKL dari form fisik (atau Scan Barcode):");
-        
         if (inputCatatan === null) return; 
         
         let spklInput = String(inputCatatan).trim();
         let spklDatabase = barisTerpilih.no_spkl ? String(barisTerpilih.no_spkl).trim() : "";
         
-        // 🔒 VALIDASI APPROVE
         if (spklInput === "") {
             alert("❌ GAGAL APPROVE!\nNomor SPKL wajib dimasukkan!");
             return; 
         }
         
         if (spklInput !== spklDatabase) {
-            // Kita tetap beri tahu jika memang datanya kosong, 
-            // tapi tidak menampilkan nomor SPKL yang benar agar aman.
             let info = (spklDatabase === "") ? "Belum ada SPKL terdaftar di sistem." : "Nomor SPKL yang Anda masukkan tidak valid.";
-            
-            alert("❌ VALIDASI GAGAL!\n" + info + "\n\nPastikan dokumen fisik sesuai dengan data pengajuan.");
+            alert("❌ VALIDASI GAGAL!\n" + info);
             return; 
         }
     }
+
+    isProcessingAdmin = true; // Kunci proses!
 
     const containerAction = document.getElementById("actionNormal");
     const originalHTML = containerAction.innerHTML; 
@@ -2612,7 +2613,6 @@ async function prosesApprove(keputusan) {
         const response = await fetch(url);
         
         if (!response.ok) throw new Error("Jaringan gagal terhubung ke Server.");
-        
         const result = await response.json();
         
         if(result.status === "success") {
@@ -2627,6 +2627,8 @@ async function prosesApprove(keputusan) {
     } catch(err) {
         alert("🚨 Error Teknis: " + err.message);
         containerAction.innerHTML = originalHTML; 
+    } finally {
+        isProcessingAdmin = false; // Buka kunci proses
     }
 }
 
@@ -2639,75 +2641,39 @@ function tutupModalAlasan() {
     document.getElementById("alasanReject").value = ""; 
 }
 
+let isRejectingAdmin = false; // Variabel global kunci
+
 async function kirimReject() {
+    // ==============================================================
+    // 🛡️ PENGAMAN KLIK GANDA (Frontend)
+    // ==============================================================
+    if (isRejectingAdmin) return;
+
     const alasan = document.getElementById("alasanReject").value.trim();
     
-    // 🔒 VALIDASI REJECT 1: Tidak boleh kosong, strip (-), atau titik (.)
     if (!alasan || alasan === "-" || alasan === ".") { 
-        alert("❌ GAGAL REJECT!\nKeterangan alasan reject wajib diisi dengan jelas (tidak boleh kosong, '-', atau '.')."); 
+        alert("❌ GAGAL REJECT!\nKeterangan alasan reject wajib diisi dengan jelas."); 
         return; 
     }
     
-    // 🔒 VALIDASI REJECT 2: Minimal wajib 2 kata
-    const jumlahKata = alasan.split(/\s+/).filter(function(kata) {
-        return kata.length > 0;
-    }).length;
-    
+    const jumlahKata = alasan.split(/\s+/).filter(function(kata) { return kata.length > 0; }).length;
     if (jumlahKata < 2) {
-        alert("❌ GAGAL REJECT!\nAlasan penolakan terlalu pendek. Wajib memasukkan minimal 2 kata sebagai Konfirmasi Admin.");
+        alert("❌ GAGAL REJECT!\nAlasan penolakan terlalu pendek. Wajib minimal 2 kata.");
         return;
     }
+
+    isRejectingAdmin = true; // Kunci tombol!
 
     const btnKirim = document.querySelector('button[onclick="kirimReject()"]');
     const teksAsli = btnKirim.innerHTML;
     btnKirim.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
     btnKirim.disabled = true;
 
-    // =========================================================
-    // 🛡️ GENERATE PESAN WA ANTI-SPAM (TUMBAL)
-    // =========================================================
-    
-    // 1. Buat Batch ID Lembur Unik di Awal Pesan (Contoh: BATCH-140726-R45-A1B)
-    const tglLembur = new Date(barisTerpilih.tanggal);
-    const ddmmyy = String(tglLembur.getDate()).padStart(2, '0') + String(tglLembur.getMonth() + 1).padStart(2, '0') + String(tglLembur.getFullYear()).slice(-2);
-    const randomAkhir = Math.random().toString(36).substring(2, 5).toUpperCase();
-    const batchId = `BATCH-${ddmmyy}-R${barisTerpilih.row}-${randomAkhir}`;
-
-    // 2. Acak Sapaan
-    const sapaanList = ["Halo", "Hai", "Notifikasi Sistem untuk", "Pemberitahuan kepada", "Info untuk"];
-    const sapaanAcak = sapaanList[Math.floor(Math.random() * sapaanList.length)];
-
-    // 3. ID Unik Footer & Waktu
-    const jamSekarang = new Date().toLocaleTimeString('id-ID');
-    const idUnikFooter = Math.random().toString(36).substring(2, 8).toUpperCase();
-
-    // 4. Susun Pesan Final
-    const pesanWA = 
-`*[ ID: ${batchId} ]*
-
-${sapaanAcak} *${barisTerpilih.nama}*,
-
-Pengajuan lembur Anda tanggal *${barisTerpilih.tanggal}* saat ini berstatus ❌ *DITOLAK*.
-
-*Catatan Admin:*
-"${alasan}"
-
-Silakan buka aplikasi lembur untuk melakukan revisi. Terima kasih.
----
-[Ref: ${idUnikFooter} - ${jamSekarang}]`;
-
-    // (OPSIONAL) Jika Anda punya API Pengirim WA, sisipkan kode fetch/axios nya di sini
-    // Contoh: await fetch('URL_API_WA_ANDA', { method: 'POST', body: JSON.stringify({ number: barisTerpilih.no_wa, message: pesanWA }) });
-    
-    // =========================================================
-
     try {
-        // Kirim status penolakan ke Google Apps Script (Sistem Utama)
         const resp = await fetch(`${SCRIPT_URL}?action=updateStatus&row=${barisTerpilih.row}&status=Rejected&deskripsi=${encodeURIComponent(alasan)}`);
         
         if (resp.ok) {
-            alert("✅ Pengajuan telah ditolak.\n(Sistem otomatis meneruskan via WA Tumbal)");
-            
+            alert("✅ Pengajuan telah ditolak.");
             tutupModalAlasan();
             tutupModalDetail();
             document.getElementById("alasanReject").value = ""; 
@@ -2722,6 +2688,7 @@ Silakan buka aplikasi lembur untuk melakukan revisi. Terima kasih.
     } finally {
         btnKirim.innerHTML = teksAsli;
         btnKirim.disabled = false;
+        isRejectingAdmin = false; // Buka kunci!
     }
 }
 
@@ -3772,15 +3739,12 @@ async function submitDataKolektif() {
     // 2. VALIDASI KETAT: Cek apakah ada yang kosong
     if (!tanggal || !jamMasuk || !jamKeluar || !kategori || !jenis || !statusPekerjaan || deskripsi === "") {
         alert("⚠️ Mohon lengkapi SEMUA kolom form (Tanggal, Jam, Kategori, Jenis, Status, dan Deskripsi) sebelum melakukan submit!"); 
-        return; // Menghentikan proses jika ada yang kosong
+        return; 
     }
 
-    // 3. Lanjutkan ke logika pembulatan jam yang sudah ada
     let mPembuat = bulatkanWaktu(jamMasuk);
     let kPembuat = bulatkanWaktu(jamKeluar);
     
-    mPembuat = bulatkanWaktu(mPembuat);
-    kPembuat = bulatkanWaktu(kPembuat);
     document.getElementById("jam_masuk").value = mPembuat;
     document.getElementById("jam_keluar").value = kPembuat;
     
@@ -3789,8 +3753,14 @@ async function submitDataKolektif() {
         return;
     }
 
+    // ==============================================================
+    // 🛡️ PENGAMAN KLIK GANDA (Frontend)
+    // ==============================================================
     const btn = document.querySelector(".btn-submit-premium");
-    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES TIM...';
+    if(btn.disabled) return; // Mencegah klik bertubi-tubi
+    btn.disabled = true; 
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES TIM...';
+    // ==============================================================
 
     try {
         let dataPeserta = [];
@@ -3831,39 +3801,32 @@ async function submitDataKolektif() {
             dataPeserta.push({ nip: nipRek, nama: namaRek, jam_masuk: masukRek, jam_keluar: keluarRek, jadwal: jadwalRek, ...calcRek });
         }
 
-        // 3. Pengecekan Kuota Massal & Proteksi Akumulasi > 60 Jam
-        const isIndividu = dataPeserta.length === 1; // LOGIKA BARU: Cek apakah pengaju sendirian
+        // Cek Kuota Massal & Proteksi Akumulasi (Dipersingkat agar rapi)
+        const isIndividu = dataPeserta.length === 1;
 
         for (let i = 0; i < dataPeserta.length; i++) {
-            // A. Cek Kuota Harian (Double Input) - TETAP JALAN UNTUK SEMUA (Individu maupun Tim)
             const respQuota = await fetch(`${SCRIPT_URL}?action=checkQuota&nip=${encodeURIComponent(dataPeserta[i].nip)}&tanggal=${encodeURIComponent(tanggal)}`);
             const cekQuota = await respQuota.json();
             if (!cekQuota.valid) throw new Error(`Gagal pada ${dataPeserta[i].nama}: ${cekQuota.message}`);
 
-            // B. Cek Akumulasi Batas Kritis 60 Jam - HANYA DITOLAK JIKA INI ROMBONGAN TIM (> 1 Orang)
             if (!isIndividu) {
                 const respLimit = await fetch(`${SCRIPT_URL}?action=checkHoursLimit&nama=${encodeURIComponent(dataPeserta[i].nama)}&jamEfektif=${dataPeserta[i].total_efektif}`);
                 const cekLimit = await respLimit.json();
                 
                 if (!cekLimit.valid) {
-                    if (cekLimit.message === "sudah_lebih") {
-                        throw new Error(`🚫 PENGAJUAN TIM DIBATALKAN\n\nPegawai atas nama: ${dataPeserta[i].nama} (${dataPeserta[i].nip}) terdeteksi SUDAH MELEBIHI 60 JAM akumulasi lembur pada siklus bulan ini.\n(Total Saat Ini: ${formatAngka(cekLimit.total)} Jam).\n\nSesuai aturan rekapitulasi, silakan keluarkan pegawai tersebut dari tim/rombongan ini, lalu arahkan dia untuk melakukan PROSES PENGAJUAN TUNGGAL/SENDIRI agar data pembayarannya terpisah.`);
-                    } else if (cekLimit.message === "akan_lebih") {
-                        throw new Error(`🚫 PENGAJUAN TIM DIBATALKAN\n\nPegawai atas nama: ${dataPeserta[i].nama} (${dataPeserta[i].nip}) terdeteksi AKAN MELEBIHI 60 JAM jika pengajuan tim ini diteruskan.\n(Total Saat Ini: ${formatAngka(cekLimit.total)} Jam + Pengajuan Baru: ${formatAngka(dataPeserta[i].total_efektif)} Jam = ${formatAngka(cekLimit.prediksi)} Jam).\n\nSesuai aturan rekapitulasi, silakan keluarkan pegawai tersebut dari tim/rombongan ini, lalu arahkan dia untuk melakukan PROSES PENGAJUAN TUNGGAL/SENDIRI agar data pembayarannya terpisah.`);
-                    }
+                     throw new Error(`🚫 PENGAJUAN TIM DIBATALKAN\nPegawai ${dataPeserta[i].nama} bermasalah limit >60 jam.`);
                 }
             }
         }
 
-        // 4. Kirim Paket Kolektif ke Server jika lolos semua validasi
         const payload = {
             action: "submitKolektif",
             tanggal: tanggal, kategori: kategori, jenis: jenis,
-            status_pekerjaan: document.getElementById("status_pekerjaan").value,
+            status_pekerjaan: statusPekerjaan,
             deskripsi: deskripsi,
             kode_unit: localStorage.getItem("kodeUnit") || "PNS",
             submitter: usernameLogin,
-            nama_submitter: namaUser, // <--- TAMBAHKAN BARIS INI
+            nama_submitter: namaUser,
             peserta: dataPeserta
         };
 
@@ -3882,15 +3845,15 @@ async function submitDataKolektif() {
         document.getElementById("jam_masuk").value = "";
         document.getElementById("jam_keluar").value = "";
         
-        // --- TAMBAHKAN POP-UP ALERT DI SINI ---
-        alert("✅ Form berhasil disimpan ke sistem!\n\n⚠️ PENTING: Pengajuan Anda BELUM terkirim ke Admin.\nSistem akan mengarahkan Anda ke menu Riwayat. Silakan klik 'Detail' lalu pilih 'Cetak SPKL' agar pengajuan Anda dapat diproses.");
-        
+        alert("✅ Form berhasil disimpan ke sistem!");
         loadRiwayat();
 
     } catch (err) {
         alert(err.message);
     } finally {
-        btn.disabled = false; btn.innerHTML = `<i class="fas fa-paper-plane"></i> KIRIM PENGAJUAN TIM`;
+        // Kembalikan tombol ke keadaan semula jika berhasil maupun gagal
+        btn.disabled = false; 
+        btn.innerHTML = `<i class="fas fa-paper-plane"></i> KIRIM PENGAJUAN TIM`;
     }
 }
 
@@ -4355,7 +4318,8 @@ function renderDaftarNotifikasi(data) {
 
 // Fungsi utama menarik data notifikasi dari server
 function fetchNotifikasiLonceng() {
-  let nip = localStorage.getItem("username") || window.usernameGlobal; 
+  // PERBAIKAN: Gunakan key "usernameLogin" sesuai dengan fungsi login Anda
+  let nip = localStorage.getItem("usernameLogin") || usernameLogin; 
   let container = document.getElementById("notifListContainer");
 
   if (!nip) {
@@ -4363,7 +4327,8 @@ function fetchNotifikasiLonceng() {
     return;
   }
 
-  fetch(`${URL_APPS_SCRIPT}?action=getNotifLonceng&username=${nip}`)
+  // PERBAIKAN: Ganti URL_APPS_SCRIPT menjadi SCRIPT_URL
+  fetch(`${SCRIPT_URL}?action=getNotifLonceng&username=${nip}`)
     .then(response => response.json())
     .then(data => {
       if(data.status === "success") {
