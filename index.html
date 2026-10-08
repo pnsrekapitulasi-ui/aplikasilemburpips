@@ -825,13 +825,57 @@ input:focus + .input-icon {
             <div class="menu-icon-wrapper" style="background: #e0f2fe; color: #0284c7;"><i class="fas fa-history"></i></div>
             <span>HISTORY</span>
         </div>
-        
-        <!-- TAMBAHKAN TOMBOL INI DI SINI -->
         <div class="menu-box" onclick="showLog()">
             <div class="menu-icon-wrapper" style="background: #e2e8f0; color: #475569;"><i class="fas fa-clipboard-list"></i></div>
             <span>LOG AKTIVITAS</span>
         </div>
-        <!-- --------------------------- -->
+        
+        <!-- MENU BARU: KELOLA PROJECT (Bawaan disembunyikan dulu) -->
+        <div class="menu-box" id="menuBoxKelolaProject" onclick="showKelolaProject()" style="display:none;">
+            <div class="menu-icon-wrapper theme-yellow"><i class="fas fa-project-diagram"></i></div>
+            <span>KELOLA PROJECT</span>
+        </div>
+    </div>
+</div>
+
+<div id="kelolaProjectSection" style="display:none; margin-top: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="menu-icon-wrapper theme-yellow" style="width: 42px; height: 42px; font-size: 18px;">
+                <i class="fas fa-project-diagram"></i>
+            </div>
+            <div>
+                <h2 style="color:#d97706; margin: 0; font-size: 20px; font-weight: 800;">Kelola Project</h2>
+                <span style="font-size: 11px; color: #64748b; font-weight: 600;">Tambah & hapus master project aktif</span>
+            </div>
+        </div>
+        <button class="btn-refresh-premium" onclick="loadAdminProjects()" title="Perbarui Data"><i class="fas fa-sync-alt"></i></button>
+    </div>
+
+    <!-- Form Tambah Project -->
+    <div style="background: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+        <h3 style="font-size: 14px; font-weight: 800; color: #1e293b; margin-bottom: 15px;"><i class="fas fa-plus-circle" style="color: #2563eb;"></i> Tambah Project Baru</h3>
+        
+        <div class="form-group-premium"><label>NAMA PROJECT</label><input type="text" id="addProjNama" class="premium-input" placeholder="Cth: Overhaul Mill 4B" required></div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="form-group-premium"><label>TGL MULAI PELAKSANAAN</label><input type="date" id="addProjMulai" class="premium-input" required></div>
+            <div class="form-group-premium"><label>TGL SELESAI PELAKSANAAN</label><input type="date" id="addProjSelesai" class="premium-input" required></div>
+        </div>
+        
+        <div class="form-group-premium"><label>BATAS AKHIR INPUT (DEADLINE)</label><input type="date" id="addProjBatas" class="premium-input" required></div>
+        
+        <button onclick="submitNewProject()" id="btnSubmitProject" class="btn-submit-premium" style="background: #d97706;"><i class="fas fa-save"></i> SIMPAN PROJECT</button>
+    </div>
+
+    <!-- Tabel Daftar Project Aktif -->
+    <div class="admin-table-scroll">
+        <table>
+            <thead>
+                <tr><th>NAMA PROJECT</th><th>PELAKSANAAN</th><th>DEADLINE</th><th>AKSI</th></tr>
+            </thead>
+            <tbody id="adminProjectBody"></tbody>
+        </table>
     </div>
 </div>
 
@@ -2077,9 +2121,15 @@ function bukaGridMenu() {
     document.getElementById("backButton").style.display = "block";
     const userRole = localStorage.getItem("role");
     
-    // --- PERBAIKAN: Buka Menu Admin untuk admin_fee ---
     if(userRole === "admin" || userRole === "admin_fee") {
         document.getElementById("menuAdmin").style.display = "block";
+        
+        // Logika memunculkan menu khusus
+        if (userRole === "admin_fee") {
+            document.getElementById("menuBoxKelolaProject").style.display = "flex";
+        } else {
+            document.getElementById("menuBoxKelolaProject").style.display = "none";
+        }
         currentView = 'menuAdmin'; 
     } else {
         document.getElementById("menuUser").style.display = "block";
@@ -2333,6 +2383,7 @@ async function showHistory() {
     document.getElementById("backButton").style.display = "block"; 
     document.getElementById("historySection").style.display = "block"; 
     currentView = 'historySection'; 
+    document.getElementById("kelolaProjectSection").style.display = "none";
     
     populatePeriodeHistory(); // Panggil pengisi nama bulan
     loadHistory(); 
@@ -2888,7 +2939,7 @@ function kembaliMenu() {
     } 
     // 2. Logika Balik untuk Sub-Menu Standar (Level 1)
     else {
-        const adminSubMenus = ['adminPanel', 'approvedSection', 'rejectedSection', 'historySection', 'logSection'];
+        const adminSubMenus = ['adminPanel', 'approvedSection', 'rejectedSection', 'historySection', 'logSection', 'kelolaProjectSection'];
         const userSubMenus = ['infoPegawaiSection', 'formLembur', 'riwayatSection', 'lemburCombinedSection', 'feeProjectSection', 'userInboxSection']; // <-- INI BARU
 
         if (adminSubMenus.includes(currentView)) {
@@ -4444,6 +4495,107 @@ async function loadDaftarProject() {
         }
     } catch(e) {
         select.innerHTML = '<option value="">-- Gagal terhubung ke server --</option>';
+    }
+}
+
+// ==============================================================
+// BLOK JAVASCRIPT MASTER PROJECT (ADMIN FEE)
+// ==============================================================
+async function showKelolaProject() {
+    hideSemuaSection();
+    document.getElementById("backButton").style.display = "block";
+    document.getElementById("kelolaProjectSection").style.display = "block";
+    currentView = 'kelolaProjectSection';
+    loadAdminProjects();
+}
+
+async function loadAdminProjects() {
+    const body = document.getElementById("adminProjectBody");
+    body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Memuat data...</td></tr>";
+    try {
+        const response = await fetch(`${SCRIPT_URL}?action=getActiveProjects`);
+        const result = await response.json();
+        
+        if (result.status === "success" && result.data.length > 0) {
+            let html = "";
+            result.data.forEach((p) => {
+                html += `<tr>
+                    <td style="font-weight:bold; color:#1e40af; font-size:12px;">${p.nama_project}</td>
+                    <td style="font-size:11px;">Mulai: ${p.mulai}<br>Selesai: ${p.selesai}</td>
+                    <td><span style="color:#dc2626; font-weight:bold; font-size:11px;">${p.batas_akhir}</span><br><span style="font-size:10px;">Sisa: ${p.sisa_hari} hr</span></td>
+                    <td><button onclick="hapusProject('${p.nama_project}')" style="background:#ef4444; color:white; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:11px;"><i class="fas fa-trash"></i> Hapus</button></td>
+                </tr>`;
+            });
+            body.innerHTML = html;
+        } else {
+            body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Belum ada project terdaftar / aktif.</td></tr>";
+        }
+    } catch(e) {
+        body.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red;'>Gagal memuat data</td></tr>";
+    }
+}
+
+async function submitNewProject() {
+    const nama = document.getElementById("addProjNama").value.trim();
+    const mulai = document.getElementById("addProjMulai").value;
+    const selesai = document.getElementById("addProjSelesai").value;
+    const batas = document.getElementById("addProjBatas").value;
+
+    if(!nama || !mulai || !selesai || !batas) {
+        alert("⚠️ Harap lengkapi semua isian untuk membuat project!");
+        return;
+    }
+
+    const btn = document.getElementById("btnSubmitProject");
+    const textLama = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+    try {
+        const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "addProject", nama_project: nama, tgl_mulai: mulai, tgl_selesai: selesai, batas_akhir: batas })
+        });
+        const result = await response.json();
+        
+        if(result.status === "success") {
+            alert("✅ Project berhasil ditambahkan!");
+            // Kosongkan form
+            document.getElementById("addProjNama").value = "";
+            document.getElementById("addProjMulai").value = "";
+            document.getElementById("addProjSelesai").value = "";
+            document.getElementById("addProjBatas").value = "";
+            // Segarkan list agar yang baru muncul
+            loadAdminProjects(); 
+        } else {
+            alert("❌ Gagal: " + result.message);
+        }
+    } catch(e) {
+        alert("🚨 Error jaringan: " + e.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = textLama;
+    }
+}
+
+async function hapusProject(namaProject) {
+    if(!confirm(`⚠️ YAKIN HAPUS?\nProject "${namaProject}" akan dihapus dari daftar dan pegawai tidak bisa lagi menginput lembur ke project ini.`)) return;
+    
+    try {
+        const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "deleteProject", nama_project: namaProject })
+        });
+        const result = await response.json();
+        
+        if(result.status === "success") {
+            alert("✅ Project berhasil dihapus!");
+            loadAdminProjects(); // Segarkan tabel otomatis
+        } else {
+            alert("❌ Gagal: " + result.message);
+        }
+    } catch(e) {
+        alert("🚨 Error jaringan: " + e.message);
     }
 }
 </script>
