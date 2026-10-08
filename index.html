@@ -1310,18 +1310,28 @@ input:focus + .input-icon {
     </div>
 </div>
 
-<div id="feeProjectSection" style="display:none;">
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-        <div class="menu-icon-wrapper theme-yellow" style="width: 42px; height: 42px; font-size: 18px;">
-            <i class="fas fa-money-bill-wave"></i>
+<div id="feeProjectSection" style="display:none; margin-top: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="menu-icon-wrapper theme-yellow" style="width: 42px; height: 42px; font-size: 18px;">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <div>
+                <h2 style="color:#d97706; margin: 0; font-size: 20px; font-weight: 800;">Riwayat Project</h2>
+                <span style="font-size: 11px; color: #64748b; font-weight: 600;">Daftar pengajuan Fee Project Anda</span>
+            </div>
         </div>
-        <div>
-            <h2 style="color:#d97706; margin: 0; font-size: 20px; font-weight: 800;">Fee Project</h2>
-        </div>
+        <button class="btn-refresh-premium" onclick="loadRiwayatFeeProject()" title="Perbarui Data"><i class="fas fa-sync-alt"></i></button>
     </div>
-    <p style="text-align: center; color: #64748b; font-size: 14px; margin-top: 20px;">
-        Halaman Fee Project sedang dikembangkan.
-    </p>
+    
+    <div class="admin-table-scroll">
+        <table>
+            <thead>
+                <tr><th>TANGGAL</th><th>PROJECT</th><th>STATUS</th><th>AKSI</th></tr>
+            </thead>
+            <tbody id="feeProjectBody"></tbody>
+        </table>
+    </div>
 </div>
 
 <div id="userInboxSection" style="display:none; margin-top: 20px;">
@@ -3153,7 +3163,7 @@ async function simpanPerubahan() {
     btnSimpan.disabled = true;
 
     const roleSaatIni = localStorage.getItem("role");
-    const actionFix = roleSaatIni === "admin" ? "updateLembur" : "revisiLembur";
+    const actionFix = roleSaatIni === "admin" || roleSaatIni === "admin_fee" ? "updateLembur" : "revisiLembur";
 
     try {
         // Proteksi UI
@@ -3161,7 +3171,11 @@ async function simpanPerubahan() {
             throw new Error("Gagal mengidentifikasi baris. Silakan tutup detail dan buka kembali.");
         }
 
+        // ==========================================
+        // DI SINI LETAK PENAMBAHAN SUMBERNYA
+        // ==========================================
         const data = {
+            sumber: barisTerpilih.sumber || "LEMBUR", // <--- PENAMBAHAN IDENTITAS SHEET
             tanggal: document.getElementById("editTanggal").value,
             jam_masuk: document.getElementById("editMasuk").value,
             jam_keluar: document.getElementById("editKeluar").value,
@@ -3185,7 +3199,7 @@ async function simpanPerubahan() {
                 row: barisTerpilih.row,
                 nip: usernameLogin,
                 usernameEksekutor: usernameLogin,
-                namaEksekutor: namaUser, // <--- TAMBAHKAN BARIS INI
+                namaEksekutor: namaUser, 
                 ...data 
             })
         });
@@ -3198,11 +3212,17 @@ async function simpanPerubahan() {
             updateDetailView(data); 
             toggleEditMode(false);
             
-            if (roleSaatIni === "admin") {
+            if (roleSaatIni === "admin" || roleSaatIni === "admin_fee") {
                 loadAdmin(); 
             } else {
                 alert("Pengajuan berhasil direvisi dan dikirim ulang ke admin!");
-                loadRiwayat(); 
+                
+                // Refresh tabel yang sesuai
+                if (data.sumber === "FEE_PROJECT") {
+                    if (typeof loadRiwayatFeeProject === "function") loadRiwayatFeeProject();
+                } else {
+                    if (typeof loadRiwayat === "function") loadRiwayat(); 
+                }
             }
         } else {
             // Lempar pesan error spesifik dari server
@@ -3339,6 +3359,41 @@ function showFeeProject() {
     document.getElementById("backButton").style.display = "block";
     document.getElementById("feeProjectSection").style.display = "block";
     currentView = 'feeProjectSection';
+    loadRiwayatFeeProject(); // Panggil fungsi load datanya
+}
+
+async function loadRiwayatFeeProject() {
+    const body = document.getElementById("feeProjectBody");
+    body.innerHTML = "<tr><td colspan='4' style='text-align:center;'><i class='fas fa-spinner fa-spin'></i> Memuat data...</td></tr>";
+    
+    try {
+        const response = await fetch(`${SCRIPT_URL}?action=riwayatFeeProject&nama=${encodeURIComponent(namaUser)}`);
+        const result = await response.json();
+        
+        dataAdminSementara = result; // Simpan ke memori agar bisa dibaca modal Detail
+        
+        let html = "";
+        if (result.length > 0) {
+            result.forEach((item, index) => {
+                let textProject = item.nama_project ? item.nama_project : "-";
+                html += `<tr>
+                    <td>${new Date(item.tanggal).toLocaleDateString('id-ID', {day:'2-digit', month:'short'})}</td>
+                    <td style="font-size:11px; font-weight:bold; color:#1e40af;">${textProject}</td>
+                    <td>${formatStatus(item.status)}</td>
+                    <td>
+                        <button class="btn-detail-history" onclick="bukaModalDetail(${index})">
+                            <i class="fas fa-eye"></i> Detail
+                        </button>
+                    </td>
+                </tr>`;
+            });
+            body.innerHTML = html;
+        } else {
+            body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Belum ada riwayat Fee Project.</td></tr>";
+        }
+    } catch(err) {
+        body.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red;'>Gagal memuat data.</td></tr>";
+    }
 }
 
 async function prosesNoted(keputusan) {
@@ -4119,7 +4174,13 @@ async function eksekusiCetak(jenisDokumen) {
     `;
 
     try {
-        const response = await fetch(`${SCRIPT_URL}?action=cetakDokumen&row=${barisCetakAktif}&jenis=${jenisDokumen}&user=${encodeURIComponent(namaUser)}`);
+        // ==============================================================
+        // PERBAIKAN: Ambil identitas 'sumber' dan masukkan ke URL Fetch
+        // ==============================================================
+        const sumberData = (barisTerpilih && barisTerpilih.sumber) ? barisTerpilih.sumber : "LEMBUR";
+        const urlFetch = `${SCRIPT_URL}?action=cetakDokumen&row=${barisCetakAktif}&jenis=${jenisDokumen}&user=${encodeURIComponent(namaUser)}&sumber=${sumberData}`;
+        
+        const response = await fetch(urlFetch);
         const result = await response.json();
         
         if (result.status === "success") {
@@ -4129,6 +4190,14 @@ async function eksekusiCetak(jenisDokumen) {
             window.open(result.url, '_blank');
             tutupModalCetak();
             tutupModalDetail(); // Tutup juga modal detail setelah tab baru PDF terbuka
+            
+            // Segarkan tabel sesuai halaman yang sedang dibuka agar statusnya berubah jadi Pending
+            if (sumberData === "FEE_PROJECT") {
+                if (typeof loadRiwayatFeeProject === "function") loadRiwayatFeeProject();
+            } else {
+                if (typeof loadRiwayat === "function") loadRiwayat();
+            }
+            
         } else {
             alert("❌ Gagal mencetak dokumen: " + (result.message || "Kesalahan server."));
             tutupModalCetak();
