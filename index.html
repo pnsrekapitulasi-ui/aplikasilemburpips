@@ -991,6 +991,29 @@ input:focus + .input-icon {
         <div class="form-group-premium"><label>NIP PEGAWAI (PEMBUAT)</label><input type="text" id="form_nip" class="premium-input read-only-input" readonly></div>
         <div class="form-group-premium"><label>NAMA PEGAWAI (PEMBUAT)</label><input type="text" id="form_nama" class="premium-input read-only-input" readonly></div>
         
+        <!-- ========================================== -->
+        <!-- TAMBAHAN BARU: PILIHAN TIPE PENGAJUAN -->
+        <!-- ========================================== -->
+        <div class="form-group-premium">
+            <label>TIPE PENGAJUAN</label>
+            <select id="tipe_pengajuan" class="premium-input" onchange="toggleTipePengajuan()" style="border-color: #2563eb; font-weight: bold; color: #1e40af;" required>
+                <option value="LEMBUR">Lembur Reguler (Normal)</option>
+                <option value="FEE_PROJECT">Fee Project (Khusus)</option>
+            </select>
+        </div>
+
+        <!-- KOTAK PROJECT (Hanya Muncul Jika Pilih Fee Project) -->
+        <div class="form-group-premium" id="grupPilihProject" style="display: none; background: #fffbeb; padding: 15px; border-radius: 12px; border: 1px dashed #f59e0b; margin-bottom: 15px;">
+            <label style="color: #b45309;"><i class="fas fa-project-diagram"></i> PILIH PROJECT AKTIF</label>
+            <select id="pilihan_project" class="premium-input" style="border-color: #fcd34d; background: white;">
+                <option value="">-- Memuat Project... --</option>
+            </select>
+            <small style="color: #d97706; font-size: 11px; margin-top: 6px; display: block; font-weight: 600;" id="infoDeadlineProject">Pilih project untuk melihat sisa waktu input.</small>
+        </div>
+        <!-- ========================================== -->
+
+        <div class="form-group-premium"><label>TANGGAL PELAKSANAAN (KOLEKTIF)</label><input type="date" id="tanggal" class="premium-input" required></div>
+        
         <!-- Tambahkan required di sini -->
         <div class="form-group-premium"><label>TANGGAL LEMBUR (KOLEKTIF)</label><input type="date" id="tanggal" class="premium-input" required></div>
         
@@ -2019,13 +2042,9 @@ input:focus + .input-icon {
     document.getElementById("infoNip").textContent = nip || usernameLogin || "-";
     document.getElementById("infoJabatan").textContent = jabatan || "Pegawai PLN";
     document.getElementById("infoEmail").textContent = email || localStorage.getItem("emailUser") || "-";
-    if(document.getElementById("infoTelegram")) {
-    document.getElementById("infoTelegram").innerText = telegram || localStorage.getItem("telegramUser") || "-";
-    }
-    // --- TAMBAHAN: INISIALISASI DATA UNTUK FITUR SEARCH ---
-    // Dipanggil di sini agar data sudah siap saat user masuk ke aplikasi
+    if(document.getElementById("infoTelegram")) document.getElementById("infoTelegram").innerText = telegram || localStorage.getItem("telegramUser") || "-";
+    
     initDataPegawai(); 
-    // -----------------------------------------------------
 
     let inisial = "US";
     if (nama) { let arrNama = nama.trim().split(/\s+/); if (arrNama.length >= 2) { inisial = (arrNama[0].charAt(0) + arrNama[1].charAt(0)).toUpperCase(); } else if (arrNama.length === 1) { inisial = arrNama[0].substring(0, 2).toUpperCase(); } }
@@ -2042,13 +2061,29 @@ input:focus + .input-icon {
     document.getElementById("menuAdmin").style.display = "none";
     document.getElementById("menuUser").style.display = "none";
     
-    if(role === "admin"){
+    // --- PERBAIKAN: Berikan akses ke admin_fee ---
+    if(role === "admin" || role === "admin_fee"){
       document.getElementById("counterTotalJam").style.display = "none";
       document.getElementById("nipPegawai").style.display = "none";
     } else {
       document.getElementById("counterTotalJam").style.display = "flex";
       document.getElementById("nipPegawai").style.display = "block";
       loadCounterDashboard(); 
+    }
+}
+
+function bukaGridMenu() {
+    hideSemuaSection();
+    document.getElementById("backButton").style.display = "block";
+    const userRole = localStorage.getItem("role");
+    
+    // --- PERBAIKAN: Buka Menu Admin untuk admin_fee ---
+    if(userRole === "admin" || userRole === "admin_fee") {
+        document.getElementById("menuAdmin").style.display = "block";
+        currentView = 'menuAdmin'; 
+    } else {
+        document.getElementById("menuUser").style.display = "block";
+        currentView = 'menuUser'; 
     }
 }
 
@@ -2073,19 +2108,6 @@ input:focus + .input-icon {
           case 'feeProjectSection': showFeeProject(); break;
       }
   }
-
-  // --- Level 1 (Menu Utama) ---
-function bukaGridMenu() {
-    hideSemuaSection();
-    document.getElementById("backButton").style.display = "block";
-    if(localStorage.getItem("role") === "admin") {
-        document.getElementById("menuAdmin").style.display = "block";
-        currentView = 'menuAdmin'; // <--- Tambah ini
-    } else {
-        document.getElementById("menuUser").style.display = "block";
-        currentView = 'menuUser'; // <--- Tambah ini
-    }
-}
 
   function hitungSemua() {
     let masuk = document.getElementById("jam_masuk").value; 
@@ -2275,12 +2297,10 @@ async function loadTidakTerjadwal() {
   async function loadAdmin() {
     const body = document.getElementById("adminBody");
     body.innerHTML = "<tr><td colspan='4'>Memuat data...</td></tr>";
-    
     try {
-        // Ganti baris fetch lama dengan ini:
-        const response = await fetch(`${SCRIPT_URL}?action=admin&kode_unit=${localStorage.getItem("kodeUnit")}`);
+        const roleAdmin = localStorage.getItem("role");
+        const response = await fetch(`${SCRIPT_URL}?action=admin&kode_unit=${localStorage.getItem("kodeUnit")}&role_admin=${roleAdmin}`);
         const result = await response.json();
-        
         const pendingData = result.filter(item => String(item.status || "").trim().toLowerCase() === 'pending');
         dataAdminSementara = pendingData;
         
@@ -2301,10 +2321,8 @@ async function loadTidakTerjadwal() {
         } else {
             html = "<tr><td colspan='4'>Tidak ada pengajuan pending</td></tr>";
         }
-        
         body.innerHTML = html;
         updateDateFilter(pendingData);
-        
     } catch (err) {
         body.innerHTML = "<tr><td colspan='4'>Gagal memuat data</td></tr>";
     }
@@ -2322,44 +2340,27 @@ async function showHistory() {
 
 async function loadHistory() {
     const body = document.getElementById("historyBody");
-    
-    // Ambil nilai dari dropdown, contoh: "0_1"
     const valPeriode = document.getElementById("filterPeriodeHistory").value;
-    const [offset, tahap] = valPeriode.split('_'); // Pecah menjadi offset=0 dan tahap=1
-    
+    const [offset, tahap] = valPeriode.split('_'); 
     const tipeLembur = document.getElementById("filterTipeLembur").value;
+    const roleAdmin = localStorage.getItem("role");
     
     body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Memuat data...</td></tr>";
-    
     try {
-        // Tambahkan parameter &tahap=${tahap}
-        const url = `${SCRIPT_URL}?action=history&offset=${offset}&tahap=${tahap}&tipeLembur=${tipeLembur}&kode_unit=${localStorage.getItem("kodeUnit")}`;
+        const url = `${SCRIPT_URL}?action=history&offset=${offset}&tahap=${tahap}&tipeLembur=${tipeLembur}&kode_unit=${localStorage.getItem("kodeUnit")}&role_admin=${roleAdmin}`;
         const response = await fetch(url);
         const result = await response.json();
-        
         dataAdminSementara = result; 
-        
         let html = "";
         if (result.length > 0) {
             result.forEach((item, index) => {
-                html += `<tr>
-                    <td>${item.nip || '-'}</td>
-                    <td>${item.nama}</td>
-                    <td>${new Date(item.tanggal).toLocaleDateString('id-ID', {day:'2-digit', month:'short'})}</td>
-                    <td>
-                        <button class="btn-detail-history" onclick="bukaModalDetail(${index})">
-                            <i class="fas fa-eye"></i> Detail
-                        </button>
-                    </td>
-                </tr>`;
+                html += `<tr><td>${item.nip || '-'}</td><td>${item.nama}</td><td>${new Date(item.tanggal).toLocaleDateString('id-ID', {day:'2-digit', month:'short'})}</td><td><button class="btn-detail-history" onclick="bukaModalDetail(${index})"><i class="fas fa-eye"></i> Detail</button></td></tr>`;
             });
             body.innerHTML = html;
         } else {
             body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Tidak ada riwayat untuk filter ini</td></tr>";
         }
-    } catch (err) {
-        body.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red;'>Gagal memuat data</td></tr>";
-    }
+    } catch (err) { body.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red;'>Gagal memuat data</td></tr>"; }
 }
 
 async function doDownload() {
@@ -2609,7 +2610,7 @@ async function prosesApprove(keputusan) {
     try {
         containerAction.innerHTML = `<div style="text-align:center; color:#10b981; font-weight:bold; padding:10px; width:100%; font-size:14px;"><i class="fas fa-spinner fa-spin"></i> Sedang Memproses...</div>`;
 
-        const url = `${SCRIPT_URL}?action=updateStatus&row=${barisTerpilih.row}&status=${keputusan}&deskripsi=${encodeURIComponent(inputCatatan)}`;
+        const url = `${SCRIPT_URL}?action=updateStatus&row=${barisTerpilih.row}&status=${keputusan}&deskripsi=${encodeURIComponent(inputCatatan)}&role_admin=${localStorage.getItem("role")}`;
         const response = await fetch(url);
         
         if (!response.ok) throw new Error("Jaringan gagal terhubung ke Server.");
@@ -2670,7 +2671,7 @@ async function kirimReject() {
     btnKirim.disabled = true;
 
     try {
-        const resp = await fetch(`${SCRIPT_URL}?action=updateStatus&row=${barisTerpilih.row}&status=Rejected&deskripsi=${encodeURIComponent(alasan)}`);
+        const resp = await fetch(`${SCRIPT_URL}?action=updateStatus&row=${barisTerpilih.row}&status=Rejected&deskripsi=${encodeURIComponent(alasan)}&role_admin=${localStorage.getItem("role")}`);
         
         if (resp.ok) {
             alert("✅ Pengajuan telah ditolak.");
@@ -3022,19 +3023,12 @@ function kembaliMenu() {
   async function loadCounterDashboard() { const counterEl = document.getElementById("counterTotalJam"); if (!counterEl || !namaUser) return; counterEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; try { const response = await fetch(`${SCRIPT_URL}?action=getCounterDashboard&nama=${encodeURIComponent(namaUser)}`); const result = await response.json(); counterEl.innerText = (result.total % 1 === 0) ? result.total : parseFloat(result.total).toFixed(1); } catch (err) { counterEl.innerText = "!"; } }
 
   async function showApproved() {
-    hideSemuaSection();
-    document.getElementById("backButton").style.display = "block";
-    document.getElementById("approvedSection").style.display = "block";
-    currentView = 'approvedSection';
-    const body = document.getElementById("approvedBody");
-    body.innerHTML = "<tr><td colspan='4'>Memuat data...</td></tr>";
-    
+    hideSemuaSection(); document.getElementById("backButton").style.display = "block"; document.getElementById("approvedSection").style.display = "block"; currentView = 'approvedSection';
+    const body = document.getElementById("approvedBody"); body.innerHTML = "<tr><td colspan='4'>Memuat data...</td></tr>";
     try {
-        // Panggil fungsi baru dengan filter periode
-        // Ganti baris fetch lama dengan ini:
-        const response = await fetch(`${SCRIPT_URL}?action=getLemburStatus&status=approved&kode_unit=${localStorage.getItem("kodeUnit")}`);
+        const roleAdmin = localStorage.getItem("role");
+        const response = await fetch(`${SCRIPT_URL}?action=getLemburStatus&status=approved&kode_unit=${localStorage.getItem("kodeUnit")}&role_admin=${roleAdmin}`);
         const result = await response.json();
-        
         dataAdminSementara = result; 
         let html = "";
         if (result.length > 0) {
@@ -3043,52 +3037,30 @@ function kembaliMenu() {
             });
             body.innerHTML = html;
         } else {
-            body.innerHTML = "<tr><td colspan='4'>Tidak ada data Approved periode ini</td></tr>";
+            body.innerHTML = "<tr><td colspan='4'>Tidak ada data Approved</td></tr>";
         }
     } catch (err) { body.innerHTML = "<tr><td colspan='4'>Gagal memuat</td></tr>"; }
 }
 
 async function showRejected() {
-    hideSemuaSection();
-    document.getElementById("backButton").style.display = "block";
-    document.getElementById("rejectedSection").style.display = "block";
-    
-    currentView = 'rejectedSection'; 
-    
-    const body = document.getElementById("rejectedBody");
-    body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Memuat data...</td></tr>";
-    
-    // Ambil nilai periode dari dropdown filter
+    hideSemuaSection(); document.getElementById("backButton").style.display = "block"; document.getElementById("rejectedSection").style.display = "block"; currentView = 'rejectedSection'; 
+    const body = document.getElementById("rejectedBody"); body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Memuat data...</td></tr>";
     const tipePeriode = document.getElementById("filterPeriodeRejected") ? document.getElementById("filterPeriodeRejected").value : "aktif";
-    
     try {
-        // Ambil data ke server dengan menyertakan parameter rentang periode
-        const response = await fetch(`${SCRIPT_URL}?action=getLemburStatus&status=rejected&kode_unit=${localStorage.getItem("kodeUnit")}&periode=${tipePeriode}`);
+        const roleAdmin = localStorage.getItem("role");
+        const response = await fetch(`${SCRIPT_URL}?action=getLemburStatus&status=rejected&kode_unit=${localStorage.getItem("kodeUnit")}&periode=${tipePeriode}&role_admin=${roleAdmin}`);
         const result = await response.json();
-        
         dataAdminSementara = result; 
-        
         let html = "";
         if (result.length > 0) {
             result.forEach((item, index) => {
-                html += `<tr>
-                    <td>${item.nip || '-'}</td>
-                    <td>${item.nama}</td>
-                    <td>${new Date(item.tanggal).toLocaleDateString('id-ID', {day:'2-digit', month:'short'})}</td>
-                    <td>
-                        <button class="btn-detail-history" onclick="bukaModalDetail(${index})">
-                            <i class="fas fa-eye"></i> Detail
-                        </button>
-                    </td>
-                </tr>`;
+                html += `<tr><td>${item.nip || '-'}</td><td>${item.nama}</td><td>${new Date(item.tanggal).toLocaleDateString('id-ID', {day:'2-digit', month:'short'})}</td><td><button class="btn-detail-history" onclick="bukaModalDetail(${index})"><i class="fas fa-eye"></i> Detail</button></td></tr>`;
             });
             body.innerHTML = html;
         } else {
-            body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Tidak ada data rejected pada periode ini</td></tr>";
+            body.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Tidak ada data rejected</td></tr>";
         }
-    } catch (err) {
-        body.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red;'>Gagal memuat data</td></tr>";
-    }
+    } catch (err) { body.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red;'>Gagal memuat data</td></tr>"; }
 }
 
 function toggleEditMode(isEdit) {
@@ -3349,7 +3321,7 @@ async function prosesNoted(keputusan) {
         // Tampilkan loading berputar
         containerAction.innerHTML = `<div style="text-align:center; color:#f59e0b; font-weight:bold; padding:10px; width:100%; font-size:14px;"><i class="fas fa-spinner fa-spin"></i> Sedang Memproses Review...</div>`;
 
-        const url = `${SCRIPT_URL}?action=saveNoted&row=${barisTerpilih.row}&keputusan=${encodeURIComponent(keputusan)}&alasan=${encodeURIComponent(inputCatatan)}`;
+        const url = `${SCRIPT_URL}?action=saveNoted&row=${barisTerpilih.row}&keputusan=${encodeURIComponent(keputusan)}&alasan=${encodeURIComponent(inputCatatan)}&role_admin=${localStorage.getItem("role")}`;
         const response = await fetch(url);
         
         // 🛡️ PROTEKSI 2: Cek jaringan
@@ -3727,7 +3699,10 @@ function kalkulasiJamInternal(masuk, keluar, kategori, jenis) {
 
 // --- FUNGSI SUBMIT ROMBONGAN KE BACKEND ---
 async function submitDataKolektif() {
-    // 1. Ambil semua elemen input
+    // 1. Ambil elemen input baru
+    const tipePengajuan = document.getElementById("tipe_pengajuan").value;
+    const namaProject = document.getElementById("pilihan_project").value;
+
     const tanggal = document.getElementById("tanggal").value;
     const jamMasuk = document.getElementById("jam_masuk").value;
     const jamKeluar = document.getElementById("jam_keluar").value;
@@ -3736,15 +3711,19 @@ async function submitDataKolektif() {
     const statusPekerjaan = document.getElementById("status_pekerjaan").value;
     const deskripsi = document.getElementById("deskripsi").value.trim();
     
-    // 2. VALIDASI KETAT: Cek apakah ada yang kosong
+    // 2. VALIDASI KETAT
     if (!tanggal || !jamMasuk || !jamKeluar || !kategori || !jenis || !statusPekerjaan || deskripsi === "") {
-        alert("⚠️ Mohon lengkapi SEMUA kolom form (Tanggal, Jam, Kategori, Jenis, Status, dan Deskripsi) sebelum melakukan submit!"); 
+        alert("⚠️ Mohon lengkapi SEMUA kolom form form sebelum melakukan submit!"); 
         return; 
+    }
+
+    if (tipePengajuan === "FEE_PROJECT" && !namaProject) {
+        alert("⚠️ Untuk jalur Fee Project, Anda WAJIB memilih Project Aktif!");
+        return;
     }
 
     let mPembuat = bulatkanWaktu(jamMasuk);
     let kPembuat = bulatkanWaktu(jamKeluar);
-    
     document.getElementById("jam_masuk").value = mPembuat;
     document.getElementById("jam_keluar").value = kPembuat;
     
@@ -3753,74 +3732,68 @@ async function submitDataKolektif() {
         return;
     }
 
-    // ==============================================================
-    // 🛡️ PENGAMAN KLIK GANDA (Frontend)
-    // ==============================================================
     const btn = document.querySelector(".btn-submit-premium");
-    if(btn.disabled) return; // Mencegah klik bertubi-tubi
+    if(btn.disabled) return; 
     btn.disabled = true; 
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES TIM...';
-    // ==============================================================
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES...';
 
     try {
         let dataPeserta = [];
 
-        // 1. Data Pembuat (Personel 1)
+        // Data Pembuat (Personel 1)
         const nip1 = document.getElementById("form_nip").value;
-        const masuk1 = mPembuat;
-        const keluar1 = kPembuat;
         const jadwal1 = document.getElementById("jadwal_lembur").value;
-        
-        if (!masuk1 || !keluar1) throw new Error("Jam Masuk/Keluar Anda (Pembuat) wajib diisi!");
-        
-        const calc1 = kalkulasiJamInternal(masuk1, keluar1, kategori, jenis);
-        dataPeserta.push({ nip: nip1, nama: document.getElementById("form_nama").value, jam_masuk: masuk1, jam_keluar: keluar1, jadwal: jadwal1, ...calc1 });
+        const calc1 = kalkulasiJamInternal(mPembuat, kPembuat, kategori, jenis);
+        dataPeserta.push({ nip: nip1, nama: document.getElementById("form_nama").value, jam_masuk: mPembuat, jam_keluar: kPembuat, jadwal: jadwal1, ...calc1 });
 
-        // 2. Data Rekan-rekan
+        // Data Rekan-rekan
         const hiddenNips = document.querySelectorAll("input[id^='rekanNip_']");
         for (let i = 0; i < hiddenNips.length; i++) {
             let id = hiddenNips[i].id.split('_')[1];
             let nipRek = document.getElementById(`rekanNip_${id}`).value;
             let namaRek = document.getElementById(`rekanNama_${id}`).value;
-            let masukRek = document.getElementById(`rekanMasuk_${id}`).value;
-            let keluarRek = document.getElementById(`rekanKeluar_${id}`).value;
+            let masukRek = bulatkanWaktu(document.getElementById(`rekanMasuk_${id}`).value);
+            let keluarRek = bulatkanWaktu(document.getElementById(`rekanKeluar_${id}`).value);
             let jadwalRek = document.getElementById(`rekanJadwal_${id}`).value; 
             
             if (nipRek === "") throw new Error(`Anda menambahkan kotak rekan, tapi belum memilih orangnya.`);
             if (!masukRek || !keluarRek) throw new Error(`Jam Masuk/Keluar untuk ${namaRek} wajib diisi!`);
-            
-            masukRek = bulatkanWaktu(masukRek);
-            keluarRek = bulatkanWaktu(keluarRek);
-            document.getElementById(`rekanMasuk_${id}`).value = masukRek;
-            document.getElementById(`rekanKeluar_${id}`).value = keluarRek;
-
             if (masukRek === keluarRek) throw new Error(`Jam Masuk dan Jam Keluar untuk ${namaRek} tidak boleh sama!`);
             if (dataPeserta.find(p => p.nip === nipRek)) throw new Error(`Pegawai ${namaRek} terinput dua kali!`);
+
+            document.getElementById(`rekanMasuk_${id}`).value = masukRek;
+            document.getElementById(`rekanKeluar_${id}`).value = keluarRek;
 
             const calcRek = kalkulasiJamInternal(masukRek, keluarRek, kategori, jenis);
             dataPeserta.push({ nip: nipRek, nama: namaRek, jam_masuk: masukRek, jam_keluar: keluarRek, jadwal: jadwalRek, ...calcRek });
         }
 
-        // Cek Kuota Massal & Proteksi Akumulasi (Dipersingkat agar rapi)
+        // =========================================================
+        // BYPASS 60 JAM & KUOTA JIKA MEMILIH FEE PROJECT
+        // =========================================================
         const isIndividu = dataPeserta.length === 1;
 
-        for (let i = 0; i < dataPeserta.length; i++) {
-            const respQuota = await fetch(`${SCRIPT_URL}?action=checkQuota&nip=${encodeURIComponent(dataPeserta[i].nip)}&tanggal=${encodeURIComponent(tanggal)}`);
-            const cekQuota = await respQuota.json();
-            if (!cekQuota.valid) throw new Error(`Gagal pada ${dataPeserta[i].nama}: ${cekQuota.message}`);
+        if (tipePengajuan === "LEMBUR") {
+            for (let i = 0; i < dataPeserta.length; i++) {
+                const respQuota = await fetch(`${SCRIPT_URL}?action=checkQuota&nip=${encodeURIComponent(dataPeserta[i].nip)}&tanggal=${encodeURIComponent(tanggal)}`);
+                const cekQuota = await respQuota.json();
+                if (!cekQuota.valid) throw new Error(`Gagal pada ${dataPeserta[i].nama}: ${cekQuota.message}`);
 
-            if (!isIndividu) {
-                const respLimit = await fetch(`${SCRIPT_URL}?action=checkHoursLimit&nama=${encodeURIComponent(dataPeserta[i].nama)}&jamEfektif=${dataPeserta[i].total_efektif}`);
-                const cekLimit = await respLimit.json();
-                
-                if (!cekLimit.valid) {
-                     throw new Error(`🚫 PENGAJUAN TIM DIBATALKAN\nPegawai ${dataPeserta[i].nama} bermasalah limit >60 jam.`);
+                if (!isIndividu) {
+                    const respLimit = await fetch(`${SCRIPT_URL}?action=checkHoursLimit&nama=${encodeURIComponent(dataPeserta[i].nama)}&jamEfektif=${dataPeserta[i].total_efektif}`);
+                    const cekLimit = await respLimit.json();
+                    
+                    if (!cekLimit.valid) {
+                         throw new Error(`🚫 PENGAJUAN TIM DIBATALKAN\nPegawai ${dataPeserta[i].nama} bermasalah limit >60 jam.`);
+                    }
                 }
             }
         }
 
         const payload = {
             action: "submitKolektif",
+            tipe_pengajuan: tipePengajuan,
+            nama_project: (tipePengajuan === "FEE_PROJECT") ? namaProject : "",
             tanggal: tanggal, kategori: kategori, jenis: jenis,
             status_pekerjaan: statusPekerjaan,
             deskripsi: deskripsi,
@@ -3839,11 +3812,14 @@ async function submitDataKolektif() {
         document.getElementById("successMessage").style.display = "block";
         document.getElementById("backButton").style.display = "block";
         
+        // Reset Semua State Form
         document.getElementById("listRekanLembur").innerHTML = "";
         jumlahRekan = 0; idCounter = 0;
         document.getElementById("deskripsi").value = "";
         document.getElementById("jam_masuk").value = "";
         document.getElementById("jam_keluar").value = "";
+        document.getElementById("tipe_pengajuan").value = "LEMBUR";
+        toggleTipePengajuan(); // Kembalikan form ke state tertutup
         
         alert("✅ Form berhasil disimpan ke sistem!");
         loadRiwayat();
@@ -3851,7 +3827,6 @@ async function submitDataKolektif() {
     } catch (err) {
         alert(err.message);
     } finally {
-        // Kembalikan tombol ke keadaan semula jika berhasil maupun gagal
         btn.disabled = false; 
         btn.innerHTML = `<i class="fas fa-paper-plane"></i> KIRIM PENGAJUAN TIM`;
     }
@@ -4416,6 +4391,60 @@ function klikNotifikasi(rowSheet, element) {
   }
   
   toggleNotifModal();
+}
+
+let dataProjectAktif = []; 
+
+function toggleTipePengajuan() {
+    const tipe = document.getElementById("tipe_pengajuan").value;
+    const grupProject = document.getElementById("grupPilihProject");
+    const selectProject = document.getElementById("pilihan_project");
+    
+    if (tipe === "FEE_PROJECT") {
+        grupProject.style.display = "block";
+        selectProject.setAttribute("required", "required");
+        loadDaftarProject(); // Tarik data dari server
+    } else {
+        grupProject.style.display = "none";
+        selectProject.removeAttribute("required");
+        selectProject.value = "";
+    }
+}
+
+async function loadDaftarProject() {
+    const select = document.getElementById("pilihan_project");
+    // Jangan proses ulang jika sudah ada isinya
+    if (dataProjectAktif.length > 0 && select.options.length > 1) return; 
+    
+    select.innerHTML = '<option value="">-- Memuat Project... --</option>';
+    try {
+        const response = await fetch(`${SCRIPT_URL}?action=getActiveProjects`);
+        const result = await response.json();
+        
+        if (result.status === "success" && result.data.length > 0) {
+            dataProjectAktif = result.data;
+            let options = '<option value="">-- Pilih Project --</option>';
+            result.data.forEach((p) => {
+                options += `<option value="${p.nama_project}">${p.nama_project}</option>`;
+            });
+            select.innerHTML = options;
+            
+            // Pasang event pendeteksi sisa hari
+            select.addEventListener("change", function() {
+                const selectedP = dataProjectAktif.find(x => x.nama_project === this.value);
+                const info = document.getElementById("infoDeadlineProject");
+                if (selectedP) {
+                    info.innerHTML = `⏳ Batas input: <b>${selectedP.batas_akhir}</b> <br>Sisa Waktu: <b style="color:#dc2626;">${selectedP.sisa_hari} Hari Lagi</b>`;
+                } else {
+                    info.innerHTML = "Pilih project untuk melihat sisa waktu input.";
+                }
+            });
+        } else {
+            select.innerHTML = '<option value="">-- Tidak ada project aktif saat ini --</option>';
+        }
+    } catch(e) {
+        select.innerHTML = '<option value="">-- Gagal terhubung ke server --</option>';
+    }
 }
 </script>
 
